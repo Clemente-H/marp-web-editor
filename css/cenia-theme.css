@@ -1,349 +1,329 @@
-/* CENIA Theme for Marp - Based on Official Brand Guidelines */
+/* CENIA Theme - Versión Mejorada basada en template oficial */
 
-/* Theme Variables - Exact colors from brand manual */
+/* Variables de marca exactas del manual */
 .slide[data-theme="cenia"] {
-    --cenia-primary: #e72887; /* Pink primary from brand manual */
-    --cenia-secondary: #002060; /* Dark blue from brand manual */
-    --cenia-light-pink: #ffc9e4; /* Light pink from brand manual */
-    --cenia-medium-pink: #eb77b1; /* Medium pink from brand manual */
-    --cenia-dark-blue: #0a0e50; /* Darkest blue from brand manual */
-    --cenia-gray: #757070; /* Gray from brand manual */
+    --cenia-primary: #e72887; /* Rosa principal exacto del template */
+    --cenia-secondary: #002060; /* Azul oscuro exacto */
+    --cenia-light-pink: #ffc9e4; 
+    --cenia-medium-pink: #eb77b1;
+    --cenia-dark-blue: #0a0e50;
+    --cenia-gray: #757070;
     --cenia-white: #ffffff;
-    --cenia-light: #f5f5f5;
+    --cenia-light-bg: #f5f5f5; /* Fondo gris claro como template */
     --cenia-text: #333333;
-    --slide-bg: #ffffff;
     
-    /* Quicksand font family */
+    /* Fuente Quicksand como en template */
     font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Base Slide Styling - Clean light gray background like template */
-.slide[data-theme="cenia"] {
-    background: #f5f5f5; /* Light gray background like template */
-    color: var(--cenia-text);
-    line-height: 1.6;
-    position: relative;
-    
-    /* Add the dots pattern from template */
-    background-image: 
-        radial-gradient(circle at 5% 5%, rgba(255,255,255,0.8) 2px, transparent 2px),
-        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.6) 1px, transparent 1px),
-        radial-gradient(circle at 25% 8%, rgba(255,255,255,0.4) 1px, transparent 1px),
-        radial-gradient(circle at 8% 25%, rgba(255,255,255,0.5) 1px, transparent 1px);
-    background-size: 60px 60px, 40px 40px, 80px 80px, 70px 70px;
-    
-    /* Add the connection lines pattern subtly */
-    background-image: 
-        radial-gradient(circle at 5% 5%, rgba(255,255,255,0.8) 2px, transparent 2px),
-        linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.2) 49%, rgba(255,255,255,0.2) 51%, transparent 52%);
-    background-size: 80px 80px, 120px 120px;
-}
-
-/* Content slides layout - like the gray template slides */
-.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide) {
-    padding: 60px 80px 60px 60px; /* More padding like template */
-}
-
-/* Typography - Más limpia y espaciada como el template */
-.slide[data-theme="cenia"] h1 {
-    color: var(--cenia-primary);
-    font-size: 2.8rem;
-    font-weight: 600; /* Less bold, more elegant */
-    margin-bottom: 2rem;
-    line-height: 1.2;
-    font-family: 'Quicksand', sans-serif;
-}
-
-.slide[data-theme="cenia"] h2 {
-    color: var(--cenia-secondary);
-    font-size: 2rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-    line-height: 1.3;
-    font-family: 'Quicksand', sans-serif;
-}
-
-.slide[data-theme="cenia"] h3 {
-    color: var(--cenia-primary);
-    font-size: 1.6rem;
-    font-weight: 500;
-    margin-bottom: 1rem;
-    font-family: 'Quicksand', sans-serif;
-}
-
-.slide[data-theme="cenia"] p {
-    font-size: 1.1rem;
-    margin-bottom: 1.2rem;
-    color: var(--cenia-text);
-    font-family: 'Quicksand', sans-serif;
     font-weight: 400;
+}
+
+/* Importar fuente Quicksand */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+/* Slide base - fondo gris claro con patrón de puntos sutil */
+.slide[data-theme="cenia"] {
+    background: var(--cenia-light-bg);
+    color: var(--cenia-text);
     line-height: 1.6;
-}
-
-/* Lists - More spaced like template */
-.slide[data-theme="cenia"] ul {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-    padding-left: 0;
-}
-
-.slide[data-theme="cenia"] li {
-    margin-bottom: 0.8rem;
     position: relative;
-    padding-left: 0;
-    list-style: none;
-    font-family: 'Quicksand', sans-serif;
-    line-height: 1.5;
+    overflow: hidden;
+    
+    /* Patrón de puntos conectados sutil como en template */
+    background-image: 
+        radial-gradient(circle at 8% 12%, rgba(255,255,255,0.8) 2px, transparent 2px),
+        radial-gradient(circle at 20% 8%, rgba(255,255,255,0.6) 1px, transparent 1px),
+        radial-gradient(circle at 12% 25%, rgba(255,255,255,0.5) 1px, transparent 1px),
+        radial-gradient(circle at 35% 15%, rgba(255,255,255,0.4) 1px, transparent 1px),
+        radial-gradient(circle at 28% 35%, rgba(255,255,255,0.3) 1px, transparent 1px);
+    background-size: 80px 80px, 60px 60px, 70px 70px, 90px 90px, 85px 85px;
+    
+    /* Líneas de conexión sutiles */
+    background-image: 
+        radial-gradient(circle at 8% 12%, rgba(255,255,255,0.8) 2px, transparent 2px),
+        linear-gradient(135deg, transparent 48%, rgba(255,255,255,0.15) 49%, rgba(255,255,255,0.15) 51%, transparent 52%),
+        linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.1) 49%, rgba(255,255,255,0.1) 51%, transparent 52%);
+    background-size: 80px 80px, 150px 150px, 120px 120px;
 }
 
-/* Remove custom bullet, use simple style */
-.slide[data-theme="cenia"] ul > li::before {
-    content: "•";
-    color: var(--cenia-primary);
-    font-weight: bold;
-    position: absolute;
-    left: -1.2rem;
-    top: 0;
-}
-
-/* Lists */
-.slide[data-theme="cenia"] ul {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-}
-
-.slide[data-theme="cenia"] li {
-    margin-bottom: 0.5rem;
-    position: relative;
-    padding-left: 1.5rem;
-}
-
-.slide[data-theme="cenia"] ul > li::before {
-    content: "▶";
-    color: var(--cenia-secondary);
-    font-weight: bold;
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-
-.slide[data-theme="cenia"] ol > li {
-    padding-left: 0;
-}
-
-.slide[data-theme="cenia"] ol > li::marker {
-    color: var(--cenia-primary);
-    font-weight: bold;
-}
-
-/* Emphasis */
-.slide[data-theme="cenia"] strong {
-    color: var(--cenia-dark);
-    font-weight: 700;
-}
-
-.slide[data-theme="cenia"] em {
-    color: var(--cenia-secondary);
-    font-style: italic;
-}
-
-/* Code */
-.slide[data-theme="cenia"] code {
-    background: var(--cenia-light);
-    color: var(--cenia-dark);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.9em;
-}
-
-.slide[data-theme="cenia"] pre {
-    background: var(--cenia-light);
-    border: 1px solid var(--cenia-primary);
-    border-radius: 6px;
-    padding: 1rem;
-    margin: 1rem 0;
-    overflow-x: auto;
-}
-
-.slide[data-theme="cenia"] pre code {
-    background: none;
-    padding: 0;
-}
-
-/* Links */
-.slide[data-theme="cenia"] a {
-    color: var(--cenia-primary);
-    text-decoration: none;
-    border-bottom: 2px solid var(--cenia-secondary);
-    transition: all 0.2s;
-}
-
-.slide[data-theme="cenia"] a:hover {
-    color: var(--cenia-dark);
-    border-bottom-color: var(--cenia-primary);
-}
-
-/* Blockquotes */
-.slide[data-theme="cenia"] blockquote {
-    border-left: 4px solid var(--cenia-secondary);
-    background: var(--cenia-light);
-    padding: 1rem 1.5rem;
-    margin: 1rem 0;
-    font-style: italic;
-}
-
-.slide[data-theme="cenia"] blockquote p {
-    margin: 0;
-}
-
-/* Tables */
-.slide[data-theme="cenia"] table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-}
-
-.slide[data-theme="cenia"] th {
-    background: var(--cenia-primary);
-    color: white;
-    padding: 0.75rem;
-    text-align: left;
-    font-weight: 600;
-}
-
-.slide[data-theme="cenia"] td {
-    padding: 0.75rem;
-    border-bottom: 1px solid var(--cenia-light);
-}
-
-.slide[data-theme="cenia"] tr:nth-child(even) {
-    background: var(--cenia-light);
-}
-
-/* Special Slide Types */
-
-/* Title Slide - Exact blue background like template with city background */
+/* SLIDE DE TÍTULO - Fondo azul oscuro como template */
 .slide[data-theme="cenia"].title-slide {
+    background: linear-gradient(135deg, var(--cenia-secondary) 0%, var(--cenia-dark-blue) 100%);
+    color: var(--cenia-white);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
     text-align: left;
-    padding: 60px 80px;
-    background: linear-gradient(135deg, #002060 0%, #0a0e50 100%);
+    padding: 80px;
     
-    /* Add city background pattern like template */
+    /* Patrón de ciudad en fondo como en template */
     background-image: 
-        linear-gradient(135deg, rgba(0,32,96,0.9) 0%, rgba(10,14,80,0.9) 100%),
-        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600"><rect width="1000" height="600" fill="%23002060"/><g opacity="0.1" fill="white"><rect x="100" y="200" width="50" height="400"/><rect x="200" y="150" width="40" height="450"/><rect x="300" y="180" width="60" height="420"/><rect x="400" y="120" width="45" height="480"/><rect x="500" y="160" width="55" height="440"/><rect x="600" y="140" width="40" height="460"/><rect x="700" y="190" width="50" height="410"/><rect x="800" y="170" width="45" height="430"/></g></svg>');
+        linear-gradient(135deg, rgba(0,32,96,0.95) 0%, rgba(10,14,80,0.95) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><g opacity="0.08" fill="white"><rect x="50" y="400" width="60" height="400"/><rect x="150" y="350" width="45" height="450"/><rect x="220" y="380" width="70" height="420"/><rect x="320" y="300" width="50" height="500"/><rect x="400" y="340" width="65" height="460"/><rect x="500" y="320" width="45" height="480"/><rect x="580" y="390" width="55" height="410"/><rect x="670" y="360" width="40" height="440"/><rect x="740" y="370" width="60" height="430"/><rect x="830" y="330" width="50" height="470"/><rect x="910" y="350" width="45" height="450"/><rect x="980" y="380" width="55" height="420"/></g></svg>');
     background-size: cover;
-    background-position: center;
-    color: white;
-    position: relative;
+    background-position: center bottom;
 }
 
 .slide[data-theme="cenia"].title-slide h1 {
-    color: white;
-    font-size: 4rem;
+    color: var(--cenia-white);
+    font-size: 4.5rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     line-height: 1.1;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .slide[data-theme="cenia"].title-slide h2 {
     color: var(--cenia-primary);
-    font-size: 2.4rem;
-    font-weight: 400;
+    font-size: 2.8rem;
+    font-weight: 500;
     margin-bottom: 2rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .slide[data-theme="cenia"].title-slide h3 {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.4rem;
-    font-weight: 300;
-    margin-bottom: 3rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin-bottom: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
-/* Add government agency logo area */
-.slide[data-theme="cenia"].title-slide::after {
-    content: "";
+/* Área para logo en slide título - solo si no hay logo real */
+.slide[data-theme="cenia"].title-slide:not(:has(.cenia-logo))::after {
+    content: "LOGO";
     position: absolute;
     top: 60px;
     right: 60px;
-    width: 150px;
-    height: 80px;
+    width: 200px;
+    height: 100px;
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 4px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    font-weight: 500;
 }
 
-/* Section Slide - Pink background like template */
+/* SLIDE DE SECCIÓN - Fondo rosa como template */
 .slide[data-theme="cenia"].section-slide {
+    background: linear-gradient(135deg, var(--cenia-primary) 0%, var(--cenia-medium-pink) 100%);
+    color: var(--cenia-white);
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: linear-gradient(135deg, var(--cenia-primary) 0%, var(--cenia-medium-pink) 100%);
-    color: white;
+    
+    /* Patrón geométrico sutil */
+    background-image: 
+        linear-gradient(135deg, rgba(231,40,135,0.9) 0%, rgba(235,119,177,0.9) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><g opacity="0.1" fill="white"><circle cx="100" cy="100" r="50"/><circle cx="300" cy="150" r="30"/><circle cx="200" cy="250" r="40"/><circle cx="350" cy="300" r="25"/><circle cx="50" cy="300" r="35"/></g></svg>');
+    background-size: cover;
 }
 
 .slide[data-theme="cenia"].section-slide h1 {
-    font-size: 4rem;
-    color: white;
+    font-size: 4.5rem;
+    color: var(--cenia-white);
     font-weight: 700;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    margin: 0;
 }
 
-/* Content Slides with Columns */
-.slide[data-theme="cenia"] .columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    height: 100%;
-    align-items: start;
+/* SLIDES DE CONTENIDO - Como template gris */
+.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide) {
+    padding: 70px 90px 70px 70px;
 }
 
-.slide[data-theme="cenia"] .columns.three {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1.5rem;
+/* Tipografía mejorada */
+.slide[data-theme="cenia"] h1 {
+    color: var(--cenia-primary);
+    font-size: 3.2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    line-height: 1.2;
 }
 
-/* Footer elements - Cleaner like template */
-.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide)::after {
+.slide[data-theme="cenia"] h2 {
+    color: var(--cenia-secondary);
+    font-size: 2.4rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+}
+
+.slide[data-theme="cenia"] h3 {
+    color: var(--cenia-primary);
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.slide[data-theme="cenia"] p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: var(--cenia-text);
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+/* Listas mejoradas */
+.slide[data-theme="cenia"] ul {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    padding-left: 0;
+}
+
+.slide[data-theme="cenia"] li {
+    margin-bottom: 1rem;
+    position: relative;
+    padding-left: 2rem;
+    list-style: none;
+    line-height: 1.5;
+}
+
+/* Bullets personalizados */
+.slide[data-theme="cenia"] ul > li::before {
     content: "";
     position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 40px;
-    height: 40px;
+    left: 0;
+    top: 0.6rem;
+    width: 8px;
+    height: 8px;
     background: var(--cenia-primary);
-    border-radius: 6px;
-    
-    /* Add CENIA logo symbol */
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><g fill="white"><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="24" cy="8" r="1.5"/><circle cx="32" cy="16" r="1.5"/><circle cx="12" cy="20" r="1.5"/><circle cx="20" cy="24" r="1.5"/><circle cx="28" cy="28" r="1.5"/><line x1="8" y1="8" x2="16" y2="12" stroke="white" stroke-width="1"/><line x1="16" y1="12" x2="24" y2="8" stroke="white" stroke-width="1"/><line x1="24" y1="8" x2="32" y2="16" stroke="white" stroke-width="1"/><line x1="12" y1="20" x2="20" y2="24" stroke="white" stroke-width="1"/><line x1="20" y1="24" x2="28" y2="28" stroke="white" stroke-width="1"/></g></svg>');
-    background-size: 24px 24px;
-    background-repeat: no-repeat;
-    background-position: center;
+    border-radius: 50%;
+    transform: translateY(-50%);
 }
 
-/* Pagination - Subtle and clean */
-.slide[data-theme="cenia"][data-paginate] .pagination {
+/* Listas numeradas */
+.slide[data-theme="cenia"] ol {
+    counter-reset: item;
+    padding-left: 0;
+}
+
+.slide[data-theme="cenia"] ol > li {
+    counter-increment: item;
+    padding-left: 2.5rem;
+}
+
+.slide[data-theme="cenia"] ol > li::before {
+    content: counter(item);
     position: absolute;
-    bottom: 30px;
-    left: 60px;
+    left: 0;
+    top: 0;
+    background: var(--cenia-primary);
+    color: white;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.9rem;
-    color: var(--cenia-gray);
-    opacity: 0.8;
-    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
 }
 
-/* Two column layout support */
+/* Énfasis */
+.slide[data-theme="cenia"] strong {
+    color: var(--cenia-secondary);
+    font-weight: 700;
+}
+
+.slide[data-theme="cenia"] em {
+    color: var(--cenia-primary);
+    font-style: italic;
+}
+
+/* Código */
+.slide[data-theme="cenia"] code {
+    background: var(--cenia-white);
+    color: var(--cenia-secondary);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-family: 'Fira Code', 'Monaco', 'Menlo', monospace;
+    font-size: 0.9em;
+    border: 1px solid rgba(0,32,96,0.1);
+}
+
+.slide[data-theme="cenia"] pre {
+    background: var(--cenia-white);
+    border: 2px solid var(--cenia-primary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Enlaces */
+.slide[data-theme="cenia"] a {
+    color: var(--cenia-primary);
+    text-decoration: none;
+    border-bottom: 2px solid var(--cenia-primary);
+    transition: all 0.3s ease;
+}
+
+.slide[data-theme="cenia"] a:hover {
+    color: var(--cenia-secondary);
+    border-bottom-color: var(--cenia-secondary);
+    background: rgba(231,40,135,0.05);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* Tablas */
+.slide[data-theme="cenia"] table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.slide[data-theme="cenia"] th {
+    background: var(--cenia-primary);
+    color: var(--cenia-white);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.slide[data-theme="cenia"] td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    font-size: 1rem;
+}
+
+.slide[data-theme="cenia"] tr:nth-child(even) {
+    background: rgba(247,247,247,0.8);
+}
+
+.slide[data-theme="cenia"] tr:hover {
+    background: rgba(231,40,135,0.05);
+}
+
+/* Blockquotes */
+.slide[data-theme="cenia"] blockquote {
+    border-left: 4px solid var(--cenia-primary);
+    background: var(--cenia-white);
+    padding: 1.5rem 2rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Columnas */
 .slide[data-theme="cenia"] .columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
-    height: calc(100% - 120px);
+    height: calc(100% - 140px);
     align-items: start;
 }
 
@@ -352,68 +332,35 @@
     gap: 2rem;
 }
 
-/* Mascot positioning area */
-.slide[data-theme="cenia"] .mascot-area {
-    position: absolute;
-    bottom: 60px;
-    right: 60px;
-    width: 120px;
-    height: 120px;
-    /* Space reserved for mascot image */
-}
-
-/* Image Styling */
-.slide[data-theme="cenia"] img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin: 1rem 0;
-}
-
-/* Highlight Box */
+/* Cajas especiales */
 .slide[data-theme="cenia"] .highlight {
-    background: var(--cenia-light);
+    background: linear-gradient(135deg, rgba(231,40,135,0.1) 0%, rgba(231,40,135,0.05) 100%);
     border: 2px solid var(--cenia-primary);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin: 1rem 0;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(231,40,135,0.15);
 }
 
-.slide[data-theme="cenia"] .highlight h3 {
-    margin-top: 0;
-    color: var(--cenia-primary);
-}
-
-/* Warning Box */
 .slide[data-theme="cenia"] .warning {
-    background: #fff3cd;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
     border: 2px solid #ffc107;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin: 1rem 0;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(255,193,7,0.2);
 }
 
-.slide[data-theme="cenia"] .warning h3 {
-    margin-top: 0;
-    color: #856404;
-}
-
-/* Success Box */
 .slide[data-theme="cenia"] .success {
-    background: #d4edda;
+    background: linear-gradient(135deg, #d4edda 0%, #98fb98 100%);
     border: 2px solid #28a745;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin: 1rem 0;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(40,167,69,0.2);
 }
 
-.slide[data-theme="cenia"] .success h3 {
-    margin-top: 0;
-    color: #155724;
-}
-
-/* Center Content */
+/* Centrado */
 .slide[data-theme="cenia"] .center {
     display: flex;
     flex-direction: column;
@@ -423,17 +370,102 @@
     text-align: center;
 }
 
-/* Large Text */
+/* Tamaños de texto */
 .slide[data-theme="cenia"] .large {
-    font-size: 1.5em;
+    font-size: 1.4em;
 }
 
 .slide[data-theme="cenia"] .xlarge {
-    font-size: 2em;
+    font-size: 1.8em;
 }
 
-/* Muted Text */
 .slide[data-theme="cenia"] .muted {
     color: var(--cenia-gray);
     opacity: 0.8;
+}
+
+/* FOOTER Y BRANDING */
+
+/* Logo CENIA en esquina inferior derecha */
+.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide)::after {
+    content: "";
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--cenia-primary);
+    border-radius: 12px;
+    
+    /* Ícono de red neural/AI como en template */
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g fill="white"><circle cx="12" cy="15" r="3"/><circle cx="30" cy="10" r="3"/><circle cx="48" cy="18" r="3"/><circle cx="15" cy="35" r="3"/><circle cx="35" cy="40" r="3"/><circle cx="45" cy="50" r="3"/><line x1="12" y1="15" x2="30" y2="10" stroke="white" stroke-width="1.5"/><line x1="30" y1="10" x2="48" y2="18" stroke="white" stroke-width="1.5"/><line x1="12" y1="15" x2="15" y2="35" stroke="white" stroke-width="1.5"/><line x1="15" y1="35" x2="35" y2="40" stroke="white" stroke-width="1.5"/><line x1="35" y1="40" x2="45" y2="50" stroke="white" stroke-width="1.5"/><line x1="48" y1="18" x2="35" y2="40" stroke="white" stroke-width="1.5"/></g></svg>');
+    background-size: 36px 36px;
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    box-shadow: 0 4px 12px rgba(231,40,135,0.3);
+}
+
+/* Numeración de páginas */
+.slide[data-theme="cenia"][data-paginate] .pagination {
+    position: absolute;
+    bottom: 40px;
+    left: 70px;
+    font-size: 1rem;
+    color: var(--cenia-gray);
+    font-weight: 500;
+    background: rgba(255,255,255,0.9);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Línea superior decorativa */
+.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--cenia-primary) 0%, var(--cenia-secondary) 100%);
+}
+
+/* Área para mascota en slides de contenido */
+.slide[data-theme="cenia"] .mascot-area {
+    position: absolute;
+    bottom: 100px;
+    right: 70px;
+    width: 150px;
+    height: 150px;
+    /* Reservado para imagen de mascota */
+    z-index: 10;
+}
+
+/* Imágenes */
+.slide[data-theme="cenia"] img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    margin: 1.5rem 0;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 1200px) {
+    .slide[data-theme="cenia"] {
+        padding: 40px 50px;
+    }
+    
+    .slide[data-theme="cenia"] h1 {
+        font-size: 2.5rem;
+    }
+    
+    .slide[data-theme="cenia"] h2 {
+        font-size: 2rem;
+    }
+    
+    .slide[data-theme="cenia"].title-slide h1 {
+        font-size: 3.5rem;
+    }
 }

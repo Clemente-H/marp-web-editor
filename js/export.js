@@ -1,13 +1,13 @@
-// Export functionality for CENIA Marp Editor
+// Exportador mejorado para CENIA Marp Editor
 class MarpExporter {
     constructor() {
         this.defaultCSS = '';
+        this.isLibrariesLoaded = false;
         this.loadDefaultCSS();
     }
 
     async loadDefaultCSS() {
         try {
-            // Load CSS from the current page
             const cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
             const cssPromises = Array.from(cssLinks).map(async (link) => {
                 try {
@@ -31,33 +31,127 @@ class MarpExporter {
         this.downloadFile(html, `${filename}.html`, 'text/html');
     }
 
-    async exportPPTX(slides, theme, filename) {
+    async exportPDF(slides, theme, filename) {
         try {
-            // Load PptxGenJS library
-            await this.loadPPTXLibrary();
+            // Mostrar loading
+            this.showLoadingMessage('Generando PDF...');
             
-            // Create presentation
-            const pres = new PptxGenJS();
+            // Cargar librerías
+            await this.loadPDFLibraries();
             
-            // Set slide size to 16:9 (widescreen)
-            pres.defineLayout({ name: 'CENIA_16x9', width: 13.33, height: 7.5 });
-            pres.layout = 'CENIA_16x9';
+            // Crear PDF usando jsPDF con html2canvas
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // Configuración de slide
+            const slideWidth = 297; // A4 landscape width
+            const slideHeight = 210; // A4 landscape height
             
-            // Add slides
             for (let i = 0; i < slides.length; i++) {
-                const slide = pres.addSlide();
+                if (i > 0) {
+                    pdf.addPage();
+                }
                 
-                // Apply CENIA theme styling
-                this.addSlideContent(slide, slides[i], theme, i);
+                // Crear elemento temporal del slide
+                const slideElement = this.createSlideForPDF(slides[i], theme);
+                document.body.appendChild(slideElement);
+                
+                try {
+                    // Capturar slide como imagen
+                    const canvas = await html2canvas(slideElement, {
+                        width: 1920,
+                        height: 1080,
+                        scale: 1,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    
+                    // Agregar al PDF
+                    pdf.addImage(imgData, 'JPEG', 0, 0, slideWidth, slideHeight);
+                    
+                } catch (e) {
+                    console.error('Error capturing slide:', i, e);
+                } finally {
+                    // Limpiar elemento temporal
+                    document.body.removeChild(slideElement);
+                }
+                
+                // Mostrar progreso
+                this.updateLoadingMessage(`Procesando slide ${i + 1}/${slides.length}...`);
             }
             
-            // Generate and download
-            pres.writeFile({ fileName: `${filename}.pptx` });
+            // Guardar PDF
+            pdf.save(`${filename}.pdf`);
+            this.hideLoadingMessage();
+            
+        } catch (e) {
+            console.error('PDF export failed:', e);
+            this.hideLoadingMessage();
+            alert('Error al exportar PDF. Verifica que tu navegador soporte html2canvas.');
+        }
+    }
+
+    async exportPPTX(slides, theme, filename) {
+        try {
+            this.showLoadingMessage('Generando PowerPoint...');
+            
+            // Cargar librería PptxGenJS
+            await this.loadPPTXLibrary();
+            
+            // Crear presentación
+            const pres = new PptxGenJS();
+            
+            // Configurar layout 16:9
+            pres.defineLayout({ 
+                name: 'CENIA_16x9', 
+                width: 13.33, 
+                height: 7.5 
+            });
+            pres.layout = 'CENIA_16x9';
+            
+            // Configurar tema CENIA
+            pres.theme = {
+                headFontFace: 'Quicksand',
+                bodyFontFace: 'Quicksand'
+            };
+            
+            // Agregar slides
+            for (let i = 0; i < slides.length; i++) {
+                const slide = pres.addSlide();
+                await this.addSlideContentToPPTX(slide, slides[i], theme, i);
+                this.updateLoadingMessage(`Procesando slide ${i + 1}/${slides.length}...`);
+            }
+            
+            // Generar y descargar
+            await pres.writeFile({ fileName: `${filename}.pptx` });
+            this.hideLoadingMessage();
             
         } catch (e) {
             console.error('PPTX export failed:', e);
-            alert('Error al exportar PowerPoint. Intenta exportar como HTML o PDF.');
+            this.hideLoadingMessage();
+            alert(`Error al exportar PowerPoint: ${e.message}\n\nIntenta exportar como HTML o PDF.`);
         }
+    }
+
+    async loadPDFLibraries() {
+        const promises = [];
+        
+        if (!window.html2canvas) {
+            promises.push(this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
+        }
+
+        if (!window.jspdf) {
+            promises.push(this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'));
+        }
+        
+        await Promise.all(promises);
     }
 
     async loadPPTXLibrary() {
@@ -66,104 +160,264 @@ class MarpExporter {
         }
     }
 
-    addSlideContent(slide, slideData, theme, index) {
-        // Parse markdown content to PowerPoint elements
-        const content = slideData.markdown;
-        
-        // Add CENIA branding
-        if (theme === 'cenia') {
-            this.addCeniaBranding(slide, slideData, index);
-        }
-        
-        // Parse and add content
-        this.parseMarkdownToPPTX(slide, content);
+    loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const existingScript = document.querySelector(`script[src="${src}"]`);
+            if (existingScript) {
+                resolve();
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => {
+                console.log(`Loaded: ${src}`);
+                resolve();
+            };
+            script.onerror = () => {
+                console.error(`Failed to load: ${src}`);
+                reject(new Error(`Failed to load script: ${src}`));
+            };
+            document.head.appendChild(script);
+        });
     }
 
-    addCeniaBranding(slide, slideData, index) {
-        // Add CENIA colors and styling
+    createSlideForPDF(slide, theme) {
+        const slideElement = document.createElement('div');
+        slideElement.className = `slide ${slide.classes.join(' ')}`;
+        slideElement.dataset.theme = theme;
+        slideElement.innerHTML = slide.html;
+        
+        // Aplicar estilos inline para PDF
+        slideElement.style.cssText = `
+            width: 1920px;
+            height: 1080px;
+            position: absolute;
+            top: -10000px;
+            left: -10000px;
+            background: #f5f5f5;
+            font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #333333;
+            padding: 70px 90px 70px 70px;
+            box-sizing: border-box;
+            overflow: hidden;
+            line-height: 1.6;
+        `;
+        
+        // Aplicar estilos específicos de tema
+        if (theme === 'cenia') {
+            this.applyCeniaPDFStyles(slideElement, slide);
+        }
+        
+        return slideElement;
+    }
+
+    applyCeniaPDFStyles(element, slide) {
+        // Aplicar estilos del tema CENIA
+        const isTitle = slide.classes.includes('title-slide');
+        const isSection = slide.classes.includes('section-slide');
+        
+        if (isTitle) {
+            element.style.background = 'linear-gradient(135deg, #e72887 0%, #eb77b1 100%)';
+            element.style.color = 'white';
+            element.style.display = 'flex';
+            element.style.justifyContent = 'center';
+            element.style.alignItems = 'center';
+            element.style.textAlign = 'center';
+        } else {
+            // Slide de contenido normal
+            element.style.background = '#f5f5f5';
+            
+            // Agregar línea superior
+            const topLine = document.createElement('div');
+            topLine.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: linear-gradient(90deg, #e72887 0%, #002060 100%);
+            `;
+            element.appendChild(topLine);
+            
+            // Agregar logo CENIA
+            const logo = document.createElement('div');
+            logo.style.cssText = `
+                position: absolute;
+                bottom: 30px;
+                right: 30px;
+                width: 60px;
+                height: 60px;
+                background: #e72887;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                font-size: 12px;
+            `;
+            logo.textContent = 'CENIA';
+            element.appendChild(logo);
+        }
+        
+        // Estilar elementos de texto
+        const h1 = element.querySelector('h1');
+        if (h1) {
+            if (isTitle) {
+                h1.style.cssText = 'color: white; font-size: 4.5rem; font-weight: 700; margin-bottom: 1.5rem; line-height: 1.1;';
+            } else if (isSection) {
+                h1.style.cssText = 'color: white; font-size: 4.5rem; font-weight: 700; margin: 0;';
+            } else {
+                h1.style.cssText = 'color: #e72887; font-size: 3.2rem; font-weight: 600; margin-bottom: 2rem; line-height: 1.2;';
+            }
+        }
+        
+        const h2 = element.querySelector('h2');
+        if (h2) {
+            if (isTitle) {
+                h2.style.cssText = 'color: #e72887; font-size: 2.8rem; font-weight: 500; margin-bottom: 2rem;';
+            } else {
+                h2.style.cssText = 'color: #002060; font-size: 2.4rem; font-weight: 600; margin-bottom: 1.5rem;';
+            }
+        }
+        
+        const h3 = element.querySelector('h3');
+        if (h3) {
+            h3.style.cssText = 'color: #e72887; font-size: 1.8rem; font-weight: 500; margin-bottom: 1rem;';
+        }
+        
+        // Estilar párrafos
+        const paragraphs = element.querySelectorAll('p');
+        paragraphs.forEach(p => {
+            p.style.cssText = 'font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.6;';
+        });
+        
+        // Estilar listas
+        const listItems = element.querySelectorAll('li');
+        listItems.forEach(li => {
+            li.style.cssText = 'margin-bottom: 1rem; font-size: 1.2rem; line-height: 1.5;';
+        });
+    }
+
+    async addSlideContentToPPTX(slide, slideData, theme, index) {
+        const content = slideData.markdown;
         const isTitle = slideData.classes.includes('title-slide');
         const isSection = slideData.classes.includes('section-slide');
         
-        if (isTitle) {
-            // Title slide with dark blue background
-            slide.background = { color: '002060' };
-            
-            // Add CENIA logo area
-            slide.addText('CENIA', {
-                x: 0.5, y: 0.5, w: 6, h: 1,
-                fontSize: 36, bold: true, color: 'FFFFFF',
-                fontFace: 'Quicksand'
-            });
-            
-            slide.addText('CENTRO NACIONAL DE INTELIGENCIA ARTIFICIAL', {
-                x: 0.5, y: 1.2, w: 8, h: 0.5,
-                fontSize: 12, color: 'FFFFFF',
-                fontFace: 'Quicksand'
-            });
-            
-        } else if (isSection) {
-            // Section slide with pink background
-            slide.background = { color: 'e72887' };
-            
-        } else {
-            // Regular slide with white background and subtle elements
-            slide.background = { color: 'FFFFFF' };
-            
-            // Add CENIA footer
-            slide.addText('CENIA', {
-                x: 11.5, y: 6.8, w: 1.5, h: 0.5,
-                fontSize: 10, color: '757070',
-                fontFace: 'Quicksand'
-            });
-            
-            // Add page number if paginate is enabled
-            if (slideData.directives.paginate) {
-                slide.addText((index + 1).toString(), {
-                    x: 0.5, y: 6.8, w: 1, h: 0.5,
-                    fontSize: 10, color: '757070',
-                    fontFace: 'Quicksand'
-                });
+        // Configurar fondo según tipo de slide
+        if (theme === 'cenia') {
+            if (isTitle) {
+                slide.background = { fill: '002060' };
+                this.addCeniaTitleToPPTX(slide, content, index);
+            } else if (isSection) {
+                slide.background = { fill: 'e72887' };
+                this.addCeniaSectionToPPTX(slide, content, index);
+            } else {
+                slide.background = { fill: 'f5f5f5' };
+                this.addCeniaContentToPPTX(slide, content, index);
             }
         }
     }
 
-    parseMarkdownToPPTX(slide, markdown) {
-        const lines = markdown.split('\n').filter(line => line.trim());
-        let yPos = 1.5;
+    addCeniaTitleToPPTX(slide, content, index) {
+        const lines = content.split('\n').filter(line => line.trim());
+        let yPos = 2;
         
         lines.forEach(line => {
             const trimmed = line.trim();
             
             if (trimmed.startsWith('# ')) {
-                // H1 - Main title
+                slide.addText(trimmed.substring(2), {
+                    x: 1, y: yPos, w: 11, h: 1.5,
+                    fontSize: 48, bold: true, color: 'FFFFFF',
+                    fontFace: 'Quicksand'
+                });
+                yPos += 2;
+            } else if (trimmed.startsWith('## ') || (trimmed && !trimmed.startsWith('#'))) {
+                const text = trimmed.startsWith('## ') ? trimmed.substring(3) : trimmed;
+                slide.addText(text, {
+                    x: 1, y: yPos, w: 11, h: 1,
+                    fontSize: 28, color: 'e72887',
+                    fontFace: 'Quicksand'
+                });
+                yPos += 1.2;
+            }
+        });
+        
+        // Agregar área para logo
+        slide.addShape('rect', {
+            x: 10, y: 0.5, w: 2.5, h: 1.2,
+            fill: { transparency: 80, color: 'FFFFFF' },
+            line: { color: 'FFFFFF', width: 1, transparency: 60 }
+        });
+        
+        slide.addText('LOGO', {
+            x: 10.2, y: 0.7, w: 2.1, h: 0.8,
+            fontSize: 12, color: 'FFFFFF', align: 'center',
+            fontFace: 'Quicksand'
+        });
+    }
+
+    addCeniaSectionToPPTX(slide, content, index) {
+        const lines = content.split('\n').filter(line => line.trim());
+        
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            
+            if (trimmed.startsWith('# ')) {
+                slide.addText(trimmed.substring(2), {
+                    x: 1, y: 3, w: 11.33, h: 2,
+                    fontSize: 48, bold: true, color: 'FFFFFF',
+                    align: 'center', valign: 'middle',
+                    fontFace: 'Quicksand'
+                });
+            }
+        });
+    }
+
+    addCeniaContentToPPTX(slide, content, index) {
+        const lines = content.split('\n').filter(line => line.trim());
+        let yPos = 1;
+        
+        // Agregar línea superior decorativa
+        slide.addShape('rect', {
+            x: 0, y: 0, w: 13.33, h: 0.08,
+            fill: { type: 'gradient', colors: [
+                { position: 0, color: 'e72887' },
+                { position: 100, color: '002060' }
+            ]}
+        });
+        
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            
+            if (trimmed.startsWith('# ')) {
                 slide.addText(trimmed.substring(2), {
                     x: 0.5, y: yPos, w: 12, h: 1,
-                    fontSize: 36, bold: true, color: 'e72887',
+                    fontSize: 32, bold: true, color: 'e72887',
                     fontFace: 'Quicksand'
                 });
                 yPos += 1.2;
                 
             } else if (trimmed.startsWith('## ')) {
-                // H2 - Subtitle
                 slide.addText(trimmed.substring(3), {
                     x: 0.5, y: yPos, w: 12, h: 0.8,
-                    fontSize: 28, bold: true, color: '002060',
+                    fontSize: 24, bold: true, color: '002060',
                     fontFace: 'Quicksand'
                 });
                 yPos += 1;
                 
             } else if (trimmed.startsWith('### ')) {
-                // H3 - Section header
                 slide.addText(trimmed.substring(4), {
                     x: 0.5, y: yPos, w: 12, h: 0.6,
-                    fontSize: 22, bold: true, color: 'e72887',
+                    fontSize: 18, bold: true, color: 'e72887',
                     fontFace: 'Quicksand'
                 });
                 yPos += 0.8;
                 
             } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-                // Bullet points
-                slide.addText('▶ ' + trimmed.substring(2), {
+                slide.addText('• ' + trimmed.substring(2), {
                     x: 1, y: yPos, w: 11, h: 0.5,
                     fontSize: 16, color: '333333',
                     fontFace: 'Quicksand'
@@ -171,7 +425,6 @@ class MarpExporter {
                 yPos += 0.6;
                 
             } else if (trimmed.match(/^\d+\. /)) {
-                // Numbered list
                 slide.addText(trimmed, {
                     x: 1, y: yPos, w: 11, h: 0.5,
                     fontSize: 16, color: '333333',
@@ -180,7 +433,6 @@ class MarpExporter {
                 yPos += 0.6;
                 
             } else if (trimmed.length > 0 && !trimmed.startsWith('<!--')) {
-                // Regular paragraph
                 slide.addText(trimmed, {
                     x: 0.5, y: yPos, w: 12, h: 0.5,
                     fontSize: 16, color: '333333',
@@ -189,99 +441,92 @@ class MarpExporter {
                 yPos += 0.7;
             }
             
-            // Prevent content overflow
-            if (yPos > 6.5) {
-                return;
-            }
+            if (yPos > 6) break;
         });
-    }
-
-    async loadPDFLibraries() {
-        // Load html2canvas
-        if (!window.html2canvas) {
-            await this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-        }
-
-        // Load jsPDF
-        if (!window.jsPDF) {
-            await this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-        }
-    }
-
-    loadScript(src) {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = src;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
+        
+        // Agregar logo CENIA en esquina
+        slide.addShape('rect', {
+            x: 11.8, y: 6.5, w: 1, h: 0.8,
+            fill: 'e72887',
+            line: { width: 0 }
         });
-    }
-
-    createSlideElement(slide, theme) {
-        const slideElement = document.createElement('div');
-        slideElement.className = 'slide';
-        slideElement.dataset.theme = theme;
-        slideElement.innerHTML = slide.html;
         
-        // Apply inline styles for PDF export
-        slideElement.style.width = '1920px';
-        slideElement.style.height = '1080px';
-        slideElement.style.padding = '60px';
-        slideElement.style.background = 'white';
-        slideElement.style.position = 'absolute';
-        slideElement.style.top = '-10000px';
-        slideElement.style.left = '-10000px';
-        slideElement.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        slide.addText('CENIA', {
+            x: 11.8, y: 6.6, w: 1, h: 0.6,
+            fontSize: 10, color: 'FFFFFF', align: 'center',
+            fontFace: 'Quicksand', bold: true
+        });
         
-        // Apply theme-specific styles
-        if (theme === 'cenia') {
-            this.applyCeniaStyles(slideElement);
+        // Agregar numeración si está habilitada
+        if (slideData.directives.paginate) {
+            slide.addText((index + 1).toString(), {
+                x: 0.5, y: 6.8, w: 1, h: 0.5,
+                fontSize: 12, color: '757070',
+                fontFace: 'Quicksand'
+            });
         }
-        
-        return slideElement;
     }
 
-    applyCeniaStyles(element) {
-        // Apply CENIA theme styles inline for PDF export
-        const style = `
-            color: #333333;
-            background-image: linear-gradient(135deg, #f0f7ff 0%, transparent 25%), 
-                              linear-gradient(45deg, transparent 75%, #f0f7ff 100%);
+    // UI helpers para mostrar progreso
+    showLoadingMessage(message) {
+        this.hideLoadingMessage(); // Limpiar mensaje anterior
+        
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = 'export-loading';
+        loadingDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            font-family: 'Quicksand', sans-serif;
         `;
-        element.style.cssText += style;
         
-        // Style headings
-        const h1 = element.querySelector('h1');
-        if (h1) {
-            h1.style.color = '#4a90e2';
-            h1.style.fontSize = '3rem';
-            h1.style.fontWeight = '700';
-            h1.style.borderBottom = '3px solid #e91e63';
-            h1.style.paddingBottom = '0.5rem';
+        loadingDiv.innerHTML = `
+            <div style="font-size: 1.2rem; color: #002060; margin-bottom: 1rem;">${message}</div>
+            <div style="width: 200px; height: 4px; background: #f0f0f0; border-radius: 2px; overflow: hidden;">
+                <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #e72887, #002060); animation: loading 1.5s infinite;"></div>
+            </div>
+            <style>
+                @keyframes loading {
+                    0% { transform: translateX(-100%); }
+                    50% { transform: translateX(0%); }
+                    100% { transform: translateX(100%); }
+                }
+            </style>
+        `;
+        
+        document.body.appendChild(loadingDiv);
+    }
+
+    updateLoadingMessage(message) {
+        const loadingDiv = document.getElementById('export-loading');
+        if (loadingDiv) {
+            const messageDiv = loadingDiv.querySelector('div');
+            if (messageDiv) {
+                messageDiv.textContent = message;
+            }
         }
-        
-        const h2 = element.querySelector('h2');
-        if (h2) {
-            h2.style.color = '#2c5aa0';
-            h2.style.fontSize = '2.2rem';
-            h2.style.fontWeight = '600';
+    }
+
+    hideLoadingMessage() {
+        const loadingDiv = document.getElementById('export-loading');
+        if (loadingDiv) {
+            loadingDiv.remove();
         }
-        
-        // Style lists
-        const listItems = element.querySelectorAll('li');
-        listItems.forEach(li => {
-            li.style.marginBottom = '0.5rem';
-            li.style.position = 'relative';
-            li.style.paddingLeft = '1.5rem';
-        });
     }
 
     generateHTMLDocument(slides, theme, title) {
         const css = this.getEmbeddedCSS(theme);
         const slidesHTML = slides.map((slide, index) => {
+            const classes = ['slide', ...slide.classes].join(' ');
             return `
-                <div class="slide ${index === 0 ? 'active' : ''}" data-theme="${theme}">
+                <div class="${classes}" data-theme="${theme}" style="display: ${index === 0 ? 'block' : 'none'};">
                     ${slide.html}
                 </div>
             `;
@@ -293,24 +538,39 @@ class MarpExporter {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         ${css}
         
-        /* Presentation Controls */
+        /* Presentation Container */
         .presentation-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
             background: #f8f9fa;
+            font-family: 'Quicksand', sans-serif;
         }
         
         .presentation-header {
             background: white;
-            padding: 1rem;
+            padding: 1rem 2rem;
             border-bottom: 1px solid #e0e0e0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .presentation-header h1 {
+            color: #002060;
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .presentation-info {
+            color: #757070;
+            font-size: 0.9rem;
         }
         
         .presentation-content {
@@ -319,67 +579,80 @@ class MarpExporter {
             justify-content: center;
             align-items: center;
             padding: 2rem;
+            overflow: hidden;
+        }
+        
+        .slides-container {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            overflow: hidden;
         }
         
         .slide {
             width: 960px;
             height: 540px;
             padding: 60px;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-radius: 8px;
-            display: none;
             overflow: hidden;
-        }
-        
-        .slide.active {
-            display: block;
+            position: relative;
         }
         
         .presentation-controls {
             background: white;
-            padding: 1rem;
+            padding: 1rem 2rem;
             border-top: 1px solid #e0e0e0;
             display: flex;
             justify-content: center;
-            gap: 1rem;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
         }
         
         .control-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid #4a90e2;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e72887;
             background: white;
-            color: #4a90e2;
-            border-radius: 4px;
+            color: #e72887;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            transition: all 0.3s ease;
         }
         
-        .control-btn:hover {
-            background: #4a90e2;
+        .control-btn:hover:not(:disabled) {
+            background: #e72887;
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231,40,135,0.3);
         }
         
         .control-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
         }
         
         .slide-counter {
             display: flex;
             align-items: center;
-            font-size: 0.9rem;
-            color: #666;
+            font-size: 1rem;
+            color: #002060;
+            font-weight: 600;
+            background: #f5f5f5;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
         }
         
-        /* Fullscreen styles */
+        /* Fullscreen */
         .fullscreen-slide {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: white;
+            background: #000;
             z-index: 1000;
             display: flex;
             justify-content: center;
@@ -387,9 +660,9 @@ class MarpExporter {
         }
         
         .fullscreen-slide .slide {
-            max-width: 90vw;
-            max-height: 90vh;
-            box-shadow: none;
+            max-width: 95vw;
+            max-height: 95vh;
+            transform: scale(1);
         }
         
         /* Print styles */
@@ -399,26 +672,49 @@ class MarpExporter {
                 display: none !important;
             }
             
-            .presentation-container {
-                height: auto;
-            }
-            
             .presentation-content {
                 padding: 0;
+                height: auto;
             }
             
             .slide {
                 width: 100%;
-                height: auto;
-                min-height: 100vh;
-                box-shadow: none;
-                border-radius: 0;
+                height: 100vh;
                 page-break-after: always;
                 display: block !important;
+                box-shadow: none;
             }
             
             .slide:last-child {
                 page-break-after: avoid;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .slide {
+                width: 80vw;
+                height: 45vw;
+                padding: 40px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .presentation-header {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .presentation-controls {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .slide {
+                width: 95vw;
+                height: 53vw;
+                padding: 20px;
             }
         }
     </style>
@@ -445,6 +741,7 @@ class MarpExporter {
                 <span id="current-slide">1</span> / <span id="total-slides">${slides.length}</span>
             </div>
             <button class="control-btn" onclick="nextSlide()">Siguiente ▶</button>
+            <button class="control-btn" onclick="window.print()">🖨️ Imprimir</button>
         </footer>
     </div>
     
@@ -454,19 +751,21 @@ class MarpExporter {
         
         function showSlide(index) {
             const slides = document.querySelectorAll('.slide');
-            slides.forEach(slide => slide.classList.remove('active'));
+            slides.forEach(slide => slide.style.display = 'none');
             
             if (slides[index]) {
-                slides[index].classList.add('active');
+                slides[index].style.display = 'block';
                 currentSlide = index;
                 document.getElementById('current-slide').textContent = index + 1;
             }
             
-            // Update button states
-            const prevBtn = document.querySelector('.control-btn');
-            const nextBtn = document.querySelector('.control-btn:last-child');
-            prevBtn.disabled = currentSlide === 0;
-            nextBtn.disabled = currentSlide === totalSlides - 1;
+            updateButtonStates();
+        }
+        
+        function updateButtonStates() {
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons[0].disabled = currentSlide === 0; // Previous
+            buttons[3].disabled = currentSlide === totalSlides - 1; // Next
         }
         
         function nextSlide() {
@@ -483,7 +782,6 @@ class MarpExporter {
         
         function toggleFullscreen() {
             const container = document.querySelector('.slides-container');
-            const currentSlideEl = document.querySelector('.slide.active');
             
             if (!document.fullscreenElement) {
                 container.requestFullscreen();
@@ -499,11 +797,14 @@ class MarpExporter {
             switch(e.key) {
                 case 'ArrowLeft':
                 case 'ArrowUp':
+                case 'PageUp':
                     previousSlide();
                     break;
                 case 'ArrowRight':
                 case 'ArrowDown':
+                case 'PageDown':
                 case ' ':
+                    e.preventDefault();
                     nextSlide();
                     break;
                 case 'Home':
@@ -525,6 +826,32 @@ class MarpExporter {
             }
         });
         
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide(); // Swipe left = next
+                } else {
+                    previousSlide(); // Swipe right = previous
+                }
+            }
+        }
+        
         // Initialize
         document.getElementById('total-slides').textContent = totalSlides;
         showSlide(0);
@@ -534,150 +861,132 @@ class MarpExporter {
     }
 
     getEmbeddedCSS(theme) {
-        // Return embedded CSS for the HTML export
         return `
-        /* Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Base styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; 
+            color: #333; 
         }
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        /* CENIA Theme */
+        /* CENIA Theme Embedded */
         .slide[data-theme="cenia"] {
-            --cenia-primary: #4a90e2;
-            --cenia-secondary: #e91e63;
-            --cenia-dark: #2c5aa0;
-            --cenia-light: #f0f7ff;
-            --cenia-gray: #666666;
+            --cenia-primary: #e72887;
+            --cenia-secondary: #002060;
+            --cenia-light-bg: #f5f5f5;
             --cenia-text: #333333;
+            --cenia-gray: #757070;
             
-            background: white;
-            background-image: 
-                linear-gradient(135deg, var(--cenia-light) 0%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, var(--cenia-light) 100%);
+            background: var(--cenia-light-bg);
             color: var(--cenia-text);
             position: relative;
+            font-family: 'Quicksand', sans-serif;
+        }
+        
+        .slide[data-theme="cenia"]:not(.title-slide):not(.section-slide)::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--cenia-primary) 0%, var(--cenia-secondary) 100%);
+        }
+        
+        .slide[data-theme="cenia"]:not(.title-slide):not(.section-slide)::after {
+            content: "";
+            position: absolute;
+            bottom: 30px; right: 30px;
+            width: 60px; height: 60px;
+            background: var(--cenia-primary);
+            border-radius: 12px;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g fill="white"><circle cx="12" cy="15" r="3"/><circle cx="30" cy="10" r="3"/><circle cx="48" cy="18" r="3"/><circle cx="15" cy="35" r="3"/><circle cx="35" cy="40" r="3"/><circle cx="45" cy="50" r="3"/><line x1="12" y1="15" x2="30" y2="10" stroke="white" stroke-width="1.5"/><line x1="30" y1="10" x2="48" y2="18" stroke="white" stroke-width="1.5"/><line x1="12" y1="15" x2="15" y2="35" stroke="white" stroke-width="1.5"/><line x1="15" y1="35" x2="35" y2="40" stroke="white" stroke-width="1.5"/><line x1="35" y1="40" x2="45" y2="50" stroke="white" stroke-width="1.5"/><line x1="48" y1="18" x2="35" y2="40" stroke="white" stroke-width="1.5"/></g></svg>');
+            background-size: 36px 36px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .slide[data-theme="cenia"].title-slide {
+            background: linear-gradient(135deg, var(--cenia-secondary) 0%, #0a0e50 100%);
+            color: white;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: flex-start;
+            text-align: left;
+        }
+        
+        .slide[data-theme="cenia"].section-slide {
+            background: linear-gradient(135deg, var(--cenia-primary) 0%, #eb77b1 100%);
+            color: white;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center;
         }
         
         .slide[data-theme="cenia"] h1 {
             color: var(--cenia-primary);
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-            border-bottom: 3px solid var(--cenia-secondary);
-            padding-bottom: 0.5rem;
+            font-size: 3.2rem; font-weight: 600;
+            margin-bottom: 2rem; line-height: 1.2;
+        }
+        
+        .slide[data-theme="cenia"].title-slide h1,
+        .slide[data-theme="cenia"].section-slide h1 {
+            color: white;
+            font-size: 4.5rem; font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .slide[data-theme="cenia"].title-slide h2 {
+            color: var(--cenia-primary);
+            font-size: 2.8rem; font-weight: 500;
         }
         
         .slide[data-theme="cenia"] h2 {
-            color: var(--cenia-dark);
-            font-size: 2.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            line-height: 1.3;
+            color: var(--cenia-secondary);
+            font-size: 2.4rem; font-weight: 600;
+            margin-bottom: 1.5rem;
         }
         
         .slide[data-theme="cenia"] h3 {
             color: var(--cenia-primary);
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
+            font-size: 1.8rem; font-weight: 500;
+            margin-bottom: 1rem;
         }
         
         .slide[data-theme="cenia"] p {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .slide[data-theme="cenia"] ul {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
+            font-size: 1.2rem; margin-bottom: 1.5rem;
+            line-height: 1.6;
         }
         
         .slide[data-theme="cenia"] li {
-            margin-bottom: 0.5rem;
-            position: relative;
-            padding-left: 1.5rem;
+            font-size: 1.2rem; margin-bottom: 1rem;
+            position: relative; padding-left: 2rem;
+            line-height: 1.5;
         }
         
         .slide[data-theme="cenia"] ul > li::before {
-            content: "▶";
-            color: var(--cenia-secondary);
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-            top: 0;
+            content: ""; position: absolute;
+            left: 0; top: 0.6rem;
+            width: 8px; height: 8px;
+            background: var(--cenia-primary);
+            border-radius: 50%;
+            transform: translateY(-50%);
         }
         
         .slide[data-theme="cenia"] strong {
-            color: var(--cenia-dark);
+            color: var(--cenia-secondary);
             font-weight: 700;
         }
         
         .slide[data-theme="cenia"] em {
-            color: var(--cenia-secondary);
-            font-style: italic;
-        }
-        
-        .slide[data-theme="cenia"]::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--cenia-primary) 0%, var(--cenia-secondary) 100%);
-        }
-        
-        .slide[data-theme="cenia"]::after {
-            content: "CENIA";
-            position: absolute;
-            bottom: 20px;
-            right: 60px;
-            font-size: 0.9rem;
-            color: var(--cenia-gray);
-            font-weight: 500;
-            opacity: 0.7;
+            color: var(--cenia-primary);
         }
         
         .slide[data-theme="cenia"] .pagination {
             position: absolute;
-            bottom: 20px;
-            left: 60px;
-            font-size: 0.9rem;
-            color: var(--cenia-gray);
-            opacity: 0.7;
-        }
-        
-        /* Special slide types */
-        .slide[data-theme="cenia"].title-slide {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: linear-gradient(135deg, var(--cenia-primary) 0%, var(--cenia-dark) 100%);
-            color: white;
-        }
-        
-        .slide[data-theme="cenia"].title-slide h1 {
-            color: white;
-            font-size: 4rem;
-            border-bottom: 3px solid white;
-            margin-bottom: 2rem;
-        }
-        
-        .slide[data-theme="cenia"].title-slide h2 {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.8rem;
-            font-weight: 400;
+            bottom: 40px; left: 70px;
+            font-size: 1rem; color: var(--cenia-gray);
+            background: rgba(255,255,255,0.9);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
         }
         `;
     }
