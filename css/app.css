@@ -1,0 +1,507 @@
+/* CSS Variables */
+:root {
+    --cenia-blue: #4a90e2;
+    --cenia-dark-blue: #2c5aa0;
+    --cenia-pink: #e91e63;
+    --cenia-light-gray: #f5f5f5;
+    --cenia-dark-gray: #333;
+    --cenia-border: #e0e0e0;
+    --editor-bg: #ffffff;
+    --preview-bg: #f8f9fa;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+}
+
+/* Reset and Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--cenia-light-gray);
+    color: var(--text-primary);
+}
+
+/* App Layout */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-bottom: 1px solid var(--cenia-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-left h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--cenia-blue);
+    margin: 0;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+#save-status {
+    color: var(--success-color);
+    font-size: 1rem;
+}
+
+#save-status.unsaved {
+    color: var(--warning-color);
+}
+
+.header-center {
+    display: flex;
+    align-items: center;
+}
+
+.theme-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-selector label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.theme-selector select {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--cenia-border);
+    border-radius: 4px;
+    background: white;
+    font-size: 0.9rem;
+}
+
+.header-right .toolbar {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.toolbar button {
+    padding: 0.5rem;
+    border: 1px solid var(--cenia-border);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.toolbar button:hover {
+    background: var(--cenia-light-gray);
+    border-color: var(--cenia-blue);
+}
+
+/* Main Content */
+.main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Editor Panel */
+.editor-panel {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    background: var(--editor-bg);
+    border-right: 1px solid var(--cenia-border);
+}
+
+.editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--cenia-light-gray);
+    border-bottom: 1px solid var(--cenia-border);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.editor-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.editor-controls button {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 0.9rem;
+}
+
+.editor-controls button:hover {
+    background: var(--cenia-border);
+}
+
+.editor-container {
+    flex: 1;
+    position: relative;
+}
+
+#markdown-editor {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    padding: 1rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    background: var(--editor-bg);
+    color: var(--text-primary);
+}
+
+/* Splitter */
+.splitter {
+    width: 4px;
+    background: var(--cenia-border);
+    cursor: col-resize;
+    position: relative;
+}
+
+.splitter:hover {
+    background: var(--cenia-blue);
+}
+
+/* Preview Panel */
+.preview-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background: var(--preview-bg);
+}
+
+.preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--cenia-light-gray);
+    border-bottom: 1px solid var(--cenia-border);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.preview-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preview-controls button {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 0.9rem;
+}
+
+.preview-controls button:hover {
+    background: var(--cenia-border);
+}
+
+#zoom-level {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    min-width: 40px;
+    text-align: center;
+}
+
+.preview-container {
+    flex: 1;
+    overflow: auto;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+#slides-container {
+    max-width: 100%;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Slide Styles */
+.slide {
+    width: 960px;
+    height: 540px;
+    padding: 60px;
+    display: none;
+    overflow: hidden;
+    position: relative;
+    background: white;
+}
+
+.slide.active {
+    display: block;
+}
+
+.slide h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--cenia-dark-blue);
+}
+
+.slide h2 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--cenia-blue);
+}
+
+.slide h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--cenia-dark-blue);
+}
+
+.slide p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.slide ul, .slide ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.slide li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+/* Preview Footer */
+.preview-footer {
+    padding: 0.75rem 1rem;
+    background: var(--cenia-light-gray);
+    border-top: 1px solid var(--cenia-border);
+    display: flex;
+    justify-content: center;
+}
+
+.slide-navigation {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.slide-navigation button {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--cenia-border);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.slide-navigation button:hover {
+    background: var(--cenia-light-gray);
+}
+
+.slide-navigation button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#slide-counter {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Modals */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80%;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--cenia-border);
+    background: var(--cenia-light-gray);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--cenia-dark-blue);
+}
+
+.modal-header button {
+    border: none;
+    background: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.modal-header button:hover {
+    background: var(--cenia-border);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+/* Template Grid */
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.template-card {
+    padding: 1rem;
+    border: 1px solid var(--cenia-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-card:hover {
+    border-color: var(--cenia-blue);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
+}
+
+.template-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--cenia-dark-blue);
+}
+
+.template-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Help Content */
+.help-content {
+    line-height: 1.6;
+}
+
+.help-content h4 {
+    margin: 1.5rem 0 0.5rem 0;
+    color: var(--cenia-dark-blue);
+}
+
+.help-content h4:first-child {
+    margin-top: 0;
+}
+
+.help-content code {
+    background: var(--cenia-light-gray);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.help-content kbd {
+    background: var(--cenia-dark-gray);
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .app-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .header-left, .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .editor-panel {
+        width: 100%;
+        height: 50%;
+    }
+    
+    .splitter {
+        height: 4px;
+        width: 100%;
+        cursor: row-resize;
+    }
+    
+    .slide {
+        width: 100%;
+        height: auto;
+        min-height: 300px;
+        padding: 1rem;
+    }
+}

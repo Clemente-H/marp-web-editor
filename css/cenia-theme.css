@@ -1,0 +1,341 @@
+/* CENIA Theme for Marp */
+
+/* Theme Variables */
+.slide[data-theme="cenia"] {
+    --cenia-primary: #4a90e2;
+    --cenia-secondary: #e91e63;
+    --cenia-dark: #2c5aa0;
+    --cenia-light: #f0f7ff;
+    --cenia-gray: #666666;
+    --cenia-text: #333333;
+    --slide-bg: #ffffff;
+}
+
+/* Base Slide Styling */
+.slide[data-theme="cenia"] {
+    background: var(--slide-bg);
+    background-image: 
+        linear-gradient(135deg, var(--cenia-light) 0%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--cenia-light) 100%);
+    color: var(--cenia-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    position: relative;
+}
+
+/* Typography */
+.slide[data-theme="cenia"] h1 {
+    color: var(--cenia-primary);
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    border-bottom: 3px solid var(--cenia-secondary);
+    padding-bottom: 0.5rem;
+}
+
+.slide[data-theme="cenia"] h2 {
+    color: var(--cenia-dark);
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+.slide[data-theme="cenia"] h3 {
+    color: var(--cenia-primary);
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.slide[data-theme="cenia"] h4 {
+    color: var(--cenia-dark);
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+}
+
+.slide[data-theme="cenia"] p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: var(--cenia-text);
+}
+
+/* Lists */
+.slide[data-theme="cenia"] ul {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.slide[data-theme="cenia"] li {
+    margin-bottom: 0.5rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.slide[data-theme="cenia"] ul > li::before {
+    content: "▶";
+    color: var(--cenia-secondary);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.slide[data-theme="cenia"] ol > li {
+    padding-left: 0;
+}
+
+.slide[data-theme="cenia"] ol > li::marker {
+    color: var(--cenia-primary);
+    font-weight: bold;
+}
+
+/* Emphasis */
+.slide[data-theme="cenia"] strong {
+    color: var(--cenia-dark);
+    font-weight: 700;
+}
+
+.slide[data-theme="cenia"] em {
+    color: var(--cenia-secondary);
+    font-style: italic;
+}
+
+/* Code */
+.slide[data-theme="cenia"] code {
+    background: var(--cenia-light);
+    color: var(--cenia-dark);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+}
+
+.slide[data-theme="cenia"] pre {
+    background: var(--cenia-light);
+    border: 1px solid var(--cenia-primary);
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.slide[data-theme="cenia"] pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Links */
+.slide[data-theme="cenia"] a {
+    color: var(--cenia-primary);
+    text-decoration: none;
+    border-bottom: 2px solid var(--cenia-secondary);
+    transition: all 0.2s;
+}
+
+.slide[data-theme="cenia"] a:hover {
+    color: var(--cenia-dark);
+    border-bottom-color: var(--cenia-primary);
+}
+
+/* Blockquotes */
+.slide[data-theme="cenia"] blockquote {
+    border-left: 4px solid var(--cenia-secondary);
+    background: var(--cenia-light);
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    font-style: italic;
+}
+
+.slide[data-theme="cenia"] blockquote p {
+    margin: 0;
+}
+
+/* Tables */
+.slide[data-theme="cenia"] table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.slide[data-theme="cenia"] th {
+    background: var(--cenia-primary);
+    color: white;
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.slide[data-theme="cenia"] td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--cenia-light);
+}
+
+.slide[data-theme="cenia"] tr:nth-child(even) {
+    background: var(--cenia-light);
+}
+
+/* Special Slide Types */
+
+/* Title Slide */
+.slide[data-theme="cenia"].title-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, var(--cenia-primary) 0%, var(--cenia-dark) 100%);
+    color: white;
+}
+
+.slide[data-theme="cenia"].title-slide h1 {
+    color: white;
+    font-size: 4rem;
+    border-bottom: 3px solid white;
+    margin-bottom: 2rem;
+}
+
+.slide[data-theme="cenia"].title-slide h2 {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.8rem;
+    font-weight: 400;
+}
+
+/* Section Divider */
+.slide[data-theme="cenia"].section-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: var(--cenia-light);
+}
+
+.slide[data-theme="cenia"].section-slide h1 {
+    font-size: 3.5rem;
+    color: var(--cenia-primary);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Content Slides with Columns */
+.slide[data-theme="cenia"] .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    height: 100%;
+    align-items: start;
+}
+
+.slide[data-theme="cenia"] .columns.three {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Footer/Header Elements */
+.slide[data-theme="cenia"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--cenia-primary) 0%, var(--cenia-secondary) 100%);
+}
+
+.slide[data-theme="cenia"]::after {
+    content: "CENIA";
+    position: absolute;
+    bottom: 20px;
+    right: 60px;
+    font-size: 0.9rem;
+    color: var(--cenia-gray);
+    font-weight: 500;
+    opacity: 0.7;
+}
+
+/* Pagination */
+.slide[data-theme="cenia"][data-paginate] .pagination {
+    position: absolute;
+    bottom: 20px;
+    left: 60px;
+    font-size: 0.9rem;
+    color: var(--cenia-gray);
+    opacity: 0.7;
+}
+
+/* Image Styling */
+.slide[data-theme="cenia"] img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin: 1rem 0;
+}
+
+/* Highlight Box */
+.slide[data-theme="cenia"] .highlight {
+    background: var(--cenia-light);
+    border: 2px solid var(--cenia-primary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.slide[data-theme="cenia"] .highlight h3 {
+    margin-top: 0;
+    color: var(--cenia-primary);
+}
+
+/* Warning Box */
+.slide[data-theme="cenia"] .warning {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.slide[data-theme="cenia"] .warning h3 {
+    margin-top: 0;
+    color: #856404;
+}
+
+/* Success Box */
+.slide[data-theme="cenia"] .success {
+    background: #d4edda;
+    border: 2px solid #28a745;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.slide[data-theme="cenia"] .success h3 {
+    margin-top: 0;
+    color: #155724;
+}
+
+/* Center Content */
+.slide[data-theme="cenia"] .center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+/* Large Text */
+.slide[data-theme="cenia"] .large {
+    font-size: 1.5em;
+}
+
+.slide[data-theme="cenia"] .xlarge {
+    font-size: 2em;
+}
+
+/* Muted Text */
+.slide[data-theme="cenia"] .muted {
+    color: var(--cenia-gray);
+    opacity: 0.8;
+}

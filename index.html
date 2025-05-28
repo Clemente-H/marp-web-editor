@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CENIA Marp Editor</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/marp-themes/default.css">
+    <link rel="stylesheet" href="css/cenia-theme.css">
+    <!-- External dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1>CENIA Marp Editor</h1>
+                <div class="file-info">
+                    <span id="filename">Presentación Sin Título</span>
+                    <span id="save-status">●</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="theme-selector">
+                    <label for="theme-select">Tema:</label>
+                    <select id="theme-select">
+                        <option value="default">Default</option>
+                        <option value="cenia" selected>CENIA</option>
+                        <option value="gaia">Gaia</option>
+                        <option value="uncover">Uncover</option>
+                    </select>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="toolbar">
+                    <button id="new-btn" title="Nueva presentación (Ctrl+N)">📄</button>
+                    <button id="open-btn" title="Abrir archivo (Ctrl+O)">📁</button>
+                    <button id="save-btn" title="Guardar (Ctrl+S)">💾</button>
+                    <button id="export-html-btn" title="Exportar HTML">🌐</button>
+                    <button id="export-pdf-btn" title="Exportar PDF">📋</button>
+                    <button id="fullscreen-btn" title="Pantalla completa (F11)">⛶</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Editor Panel -->
+            <div class="editor-panel">
+                <div class="editor-header">
+                    <span>Editor Markdown</span>
+                    <div class="editor-controls">
+                        <button id="template-btn" title="Insertar template">📋</button>
+                        <button id="help-btn" title="Ayuda Marp">❓</button>
+                    </div>
+                </div>
+                <div class="editor-container">
+                    <textarea id="markdown-editor" placeholder="---
+theme: cenia
+paginate: true
+---
+
+# Mi Presentación CENIA
+
+Subtitle aquí
+
+---
+
+## Slide 2
+
+- Punto 1
+- Punto 2
+- Punto 3
+
+---
+
+## Gracias
+
+¿Preguntas?
+
+---"></textarea>
+                </div>
+            </div>
+
+            <!-- Splitter -->
+            <div class="splitter" id="splitter"></div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <span>Preview</span>
+                    <div class="preview-controls">
+                        <button id="zoom-out-btn" title="Zoom out">🔍-</button>
+                        <span id="zoom-level">100%</span>
+                        <button id="zoom-in-btn" title="Zoom in">🔍+</button>
+                        <button id="fit-btn" title="Ajustar a ventana">⊞</button>
+                    </div>
+                </div>
+                <div class="preview-container">
+                    <div id="slides-container"></div>
+                </div>
+                <div class="preview-footer">
+                    <div class="slide-navigation">
+                        <button id="prev-slide-btn" title="Slide anterior">◀</button>
+                        <span id="slide-counter">1 / 1</span>
+                        <button id="next-slide-btn" title="Slide siguiente">▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Modal -->
+        <div id="template-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Seleccionar Template</h3>
+                    <button id="close-modal-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="template-grid">
+                        <div class="template-card" data-template="basic">
+                            <h4>Básico CENIA</h4>
+                            <p>Template simple con branding CENIA</p>
+                        </div>
+                        <div class="template-card" data-template="report">
+                            <h4>Reporte Técnico</h4>
+                            <p>Para presentaciones técnicas y reportes</p>
+                        </div>
+                        <div class="template-card" data-template="executive">
+                            <h4>Ejecutivo</h4>
+                            <p>Para presentaciones a stakeholders</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="help-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Guía Rápida Marp</h3>
+                    <button id="close-help-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="help-content">
+                        <h4>Separar Slides</h4>
+                        <code>---</code>
+                        
+                        <h4>Directivas Principales</h4>
+                        <code>theme: cenia</code> - Tema CENIA<br>
+                        <code>paginate: true</code> - Numeración<br>
+                        <code>size: 16:9</code> - Formato<br>
+                        
+                        <h4>Formato de Texto</h4>
+                        <code># Título Principal</code><br>
+                        <code>## Subtítulo</code><br>
+                        <code>**negrita**</code> <code>*cursiva*</code><br>
+                        
+                        <h4>Listas</h4>
+                        <code>- Item 1</code><br>
+                        <code>- Item 2</code><br>
+                        
+                        <h4>Shortcuts</h4>
+                        <kbd>Ctrl+S</kbd> Guardar<br>
+                        <kbd>Ctrl+N</kbd> Nuevo<br>
+                        <kbd>Ctrl+O</kbd> Abrir<br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File input for opening files -->
+    <input type="file" id="file-input" accept=".md,.markdown,.txt" style="display: none;">
+
+    <!-- Scripts -->
+    <script src="js/parser.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/preview.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
