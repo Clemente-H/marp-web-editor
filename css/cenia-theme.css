@@ -1,45 +1,53 @@
-/* CENIA Theme for Marp */
+/* CENIA Theme for Marp - Based on Official Brand Guidelines */
 
-/* Theme Variables */
+/* Theme Variables - Exact colors from brand manual */
 .slide[data-theme="cenia"] {
-    --cenia-primary: #4a90e2;
-    --cenia-secondary: #e91e63;
-    --cenia-dark: #2c5aa0;
-    --cenia-light: #f0f7ff;
-    --cenia-gray: #666666;
+    --cenia-primary: #e72887; /* Pink primary from brand manual */
+    --cenia-secondary: #002060; /* Dark blue from brand manual */
+    --cenia-light-pink: #ffc9e4; /* Light pink from brand manual */
+    --cenia-medium-pink: #eb77b1; /* Medium pink from brand manual */
+    --cenia-dark-blue: #0a0e50; /* Darkest blue from brand manual */
+    --cenia-gray: #757070; /* Gray from brand manual */
+    --cenia-white: #ffffff;
+    --cenia-light: #f5f5f5;
     --cenia-text: #333333;
     --slide-bg: #ffffff;
+    
+    /* Quicksand font family */
+    font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Base Slide Styling */
+/* Base Slide Styling - Clean white background with subtle elements */
 .slide[data-theme="cenia"] {
     background: var(--slide-bg);
-    background-image: 
-        linear-gradient(135deg, var(--cenia-light) 0%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, var(--cenia-light) 100%);
     color: var(--cenia-text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     position: relative;
+    
+    /* Add subtle pattern elements like in brand slides */
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(231, 40, 135, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 32, 96, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(231, 40, 135, 0.03) 0%, transparent 50%);
 }
 
-/* Typography */
+/* Typography - Based on Quicksand font from brand manual */
 .slide[data-theme="cenia"] h1 {
     color: var(--cenia-primary);
-    font-size: 3rem;
+    font-size: 3.2rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
     line-height: 1.2;
-    border-bottom: 3px solid var(--cenia-secondary);
-    padding-bottom: 0.5rem;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .slide[data-theme="cenia"] h2 {
-    color: var(--cenia-dark);
-    font-size: 2.2rem;
+    color: var(--cenia-secondary);
+    font-size: 2.4rem;
     font-weight: 600;
     margin-bottom: 1rem;
     line-height: 1.3;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .slide[data-theme="cenia"] h3 {
@@ -47,19 +55,23 @@
     font-size: 1.8rem;
     font-weight: 600;
     margin-bottom: 0.8rem;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .slide[data-theme="cenia"] h4 {
-    color: var(--cenia-dark);
+    color: var(--cenia-secondary);
     font-size: 1.4rem;
     font-weight: 500;
     margin-bottom: 0.6rem;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .slide[data-theme="cenia"] p {
     font-size: 1.2rem;
     margin-bottom: 1rem;
     color: var(--cenia-text);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 400;
 }
 
 /* Lists */
@@ -179,43 +191,71 @@
 
 /* Special Slide Types */
 
-/* Title Slide */
+/* Title Slide - Dark blue background like brand slides */
 .slide[data-theme="cenia"].title-slide {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    text-align: center;
-    background: linear-gradient(135deg, var(--cenia-primary) 0%, var(--cenia-dark) 100%);
+    align-items: flex-start;
+    text-align: left;
+    padding-left: 120px;
+    background: linear-gradient(135deg, var(--cenia-secondary) 0%, var(--cenia-dark-blue) 100%);
+    background-image: 
+        radial-gradient(circle at 85% 15%, rgba(231, 40, 135, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 15% 85%, rgba(231, 40, 135, 0.08) 0%, transparent 50%);
     color: white;
+    position: relative;
 }
 
 .slide[data-theme="cenia"].title-slide h1 {
     color: white;
-    font-size: 4rem;
-    border-bottom: 3px solid white;
-    margin-bottom: 2rem;
+    font-size: 4.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.1;
 }
 
 .slide[data-theme="cenia"].title-slide h2 {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.8rem;
+    color: var(--cenia-primary);
+    font-size: 2.2rem;
     font-weight: 400;
+    margin-bottom: 2rem;
 }
 
-/* Section Divider */
+.slide[data-theme="cenia"].title-slide h3 {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.4rem;
+    font-weight: 300;
+}
+
+/* Add CENIA logo/branding area on title slides */
+.slide[data-theme="cenia"].title-slide::before {
+    content: "";
+    position: absolute;
+    top: 60px;
+    left: 60px;
+    right: 60px;
+    height: 80px;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50"><text x="10" y="30" fill="white" font-family="Quicksand" font-size="24" font-weight="700">CENIA</text><text x="10" y="45" fill="rgba(255,255,255,0.8)" font-family="Quicksand" font-size="10">CENTRO NACIONAL DE INTELIGENCIA ARTIFICIAL</text></svg>');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+/* Section Slide - Pink background */
 .slide[data-theme="cenia"].section-slide {
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: var(--cenia-light);
+    background: linear-gradient(135deg, var(--cenia-primary) 0%, var(--cenia-medium-pink) 100%);
+    color: white;
 }
 
 .slide[data-theme="cenia"].section-slide h1 {
-    font-size: 3.5rem;
-    color: var(--cenia-primary);
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    font-size: 4rem;
+    color: white;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
 /* Content Slides with Columns */

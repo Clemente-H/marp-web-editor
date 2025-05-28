@@ -31,50 +31,169 @@ class MarpExporter {
         this.downloadFile(html, `${filename}.html`, 'text/html');
     }
 
-    async exportPDF(slides, theme, filename) {
-        // For PDF export, we'll use html2canvas and jsPDF
+    async exportPPTX(slides, theme, filename) {
         try {
-            // Load libraries if not already loaded
-            await this.loadPDFLibraries();
+            // Load PptxGenJS library
+            await this.loadPPTXLibrary();
             
-            const pdf = new window.jsPDF({
-                orientation: 'landscape',
-                unit: 'px',
-                format: [1920, 1080]
-            });
-
+            // Create presentation
+            const pres = new PptxGenJS();
+            
+            // Set slide size to 16:9 (widescreen)
+            pres.defineLayout({ name: 'CENIA_16x9', width: 13.33, height: 7.5 });
+            pres.layout = 'CENIA_16x9';
+            
+            // Add slides
             for (let i = 0; i < slides.length; i++) {
-                if (i > 0) {
-                    pdf.addPage();
-                }
-
-                // Create temporary slide element
-                const slideElement = this.createSlideElement(slides[i], theme);
-                document.body.appendChild(slideElement);
-
-                try {
-                    const canvas = await html2canvas(slideElement, {
-                        width: 1920,
-                        height: 1080,
-                        scale: 1,
-                        useCORS: true,
-                        allowTaint: true
-                    });
-
-                    const imgData = canvas.toDataURL('image/png');
-                    pdf.addImage(imgData, 'PNG', 0, 0, 1920, 1080);
-                } catch (e) {
-                    console.error('Error capturing slide:', e);
-                } finally {
-                    document.body.removeChild(slideElement);
-                }
+                const slide = pres.addSlide();
+                
+                // Apply CENIA theme styling
+                this.addSlideContent(slide, slides[i], theme, i);
             }
-
-            pdf.save(`${filename}.pdf`);
+            
+            // Generate and download
+            pres.writeFile({ fileName: `${filename}.pptx` });
+            
         } catch (e) {
-            console.error('PDF export failed:', e);
-            alert('Error al exportar PDF. Intenta exportar como HTML.');
+            console.error('PPTX export failed:', e);
+            alert('Error al exportar PowerPoint. Intenta exportar como HTML o PDF.');
         }
+    }
+
+    async loadPPTXLibrary() {
+        if (!window.PptxGenJS) {
+            await this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.min.js');
+        }
+    }
+
+    addSlideContent(slide, slideData, theme, index) {
+        // Parse markdown content to PowerPoint elements
+        const content = slideData.markdown;
+        
+        // Add CENIA branding
+        if (theme === 'cenia') {
+            this.addCeniaBranding(slide, slideData, index);
+        }
+        
+        // Parse and add content
+        this.parseMarkdownToPPTX(slide, content);
+    }
+
+    addCeniaBranding(slide, slideData, index) {
+        // Add CENIA colors and styling
+        const isTitle = slideData.classes.includes('title-slide');
+        const isSection = slideData.classes.includes('section-slide');
+        
+        if (isTitle) {
+            // Title slide with dark blue background
+            slide.background = { color: '002060' };
+            
+            // Add CENIA logo area
+            slide.addText('CENIA', {
+                x: 0.5, y: 0.5, w: 6, h: 1,
+                fontSize: 36, bold: true, color: 'FFFFFF',
+                fontFace: 'Quicksand'
+            });
+            
+            slide.addText('CENTRO NACIONAL DE INTELIGENCIA ARTIFICIAL', {
+                x: 0.5, y: 1.2, w: 8, h: 0.5,
+                fontSize: 12, color: 'FFFFFF',
+                fontFace: 'Quicksand'
+            });
+            
+        } else if (isSection) {
+            // Section slide with pink background
+            slide.background = { color: 'e72887' };
+            
+        } else {
+            // Regular slide with white background and subtle elements
+            slide.background = { color: 'FFFFFF' };
+            
+            // Add CENIA footer
+            slide.addText('CENIA', {
+                x: 11.5, y: 6.8, w: 1.5, h: 0.5,
+                fontSize: 10, color: '757070',
+                fontFace: 'Quicksand'
+            });
+            
+            // Add page number if paginate is enabled
+            if (slideData.directives.paginate) {
+                slide.addText((index + 1).toString(), {
+                    x: 0.5, y: 6.8, w: 1, h: 0.5,
+                    fontSize: 10, color: '757070',
+                    fontFace: 'Quicksand'
+                });
+            }
+        }
+    }
+
+    parseMarkdownToPPTX(slide, markdown) {
+        const lines = markdown.split('\n').filter(line => line.trim());
+        let yPos = 1.5;
+        
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            
+            if (trimmed.startsWith('# ')) {
+                // H1 - Main title
+                slide.addText(trimmed.substring(2), {
+                    x: 0.5, y: yPos, w: 12, h: 1,
+                    fontSize: 36, bold: true, color: 'e72887',
+                    fontFace: 'Quicksand'
+                });
+                yPos += 1.2;
+                
+            } else if (trimmed.startsWith('## ')) {
+                // H2 - Subtitle
+                slide.addText(trimmed.substring(3), {
+                    x: 0.5, y: yPos, w: 12, h: 0.8,
+                    fontSize: 28, bold: true, color: '002060',
+                    fontFace: 'Quicksand'
+                });
+                yPos += 1;
+                
+            } else if (trimmed.startsWith('### ')) {
+                // H3 - Section header
+                slide.addText(trimmed.substring(4), {
+                    x: 0.5, y: yPos, w: 12, h: 0.6,
+                    fontSize: 22, bold: true, color: 'e72887',
+                    fontFace: 'Quicksand'
+                });
+                yPos += 0.8;
+                
+            } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                // Bullet points
+                slide.addText('▶ ' + trimmed.substring(2), {
+                    x: 1, y: yPos, w: 11, h: 0.5,
+                    fontSize: 16, color: '333333',
+                    fontFace: 'Quicksand'
+                });
+                yPos += 0.6;
+                
+            } else if (trimmed.match(/^\d+\. /)) {
+                // Numbered list
+                slide.addText(trimmed, {
+                    x: 1, y: yPos, w: 11, h: 0.5,
+                    fontSize: 16, color: '333333',
+                    fontFace: 'Quicksand'
+                });
+                yPos += 0.6;
+                
+            } else if (trimmed.length > 0 && !trimmed.startsWith('<!--')) {
+                // Regular paragraph
+                slide.addText(trimmed, {
+                    x: 0.5, y: yPos, w: 12, h: 0.5,
+                    fontSize: 16, color: '333333',
+                    fontFace: 'Quicksand'
+                });
+                yPos += 0.7;
+            }
+            
+            // Prevent content overflow
+            if (yPos > 6.5) {
+                return;
+            }
+        });
     }
 
     async loadPDFLibraries() {

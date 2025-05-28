@@ -36,11 +36,32 @@
             </div>
             <div class="header-right">
                 <div class="toolbar">
-                    <button id="new-btn" title="Nueva presentación (Ctrl+N)">📄</button>
-                    <button id="open-btn" title="Abrir archivo (Ctrl+O)">📁</button>
-                    <button id="save-btn" title="Guardar (Ctrl+S)">💾</button>
-                    <button id="export-html-btn" title="Exportar HTML">🌐</button>
-                    <button id="export-pdf-btn" title="Exportar PDF">📋</button>
+                    <button id="new-btn" title="Nueva presentación (Ctrl+N)">
+                        <span class="btn-icon">📄</span>
+                        <span class="btn-text">Nuevo</span>
+                    </button>
+                    <button id="open-btn" title="Abrir archivo (Ctrl+O)">
+                        <span class="btn-icon">📁</span>
+                        <span class="btn-text">Abrir</span>
+                    </button>
+                    <button id="save-btn" title="Guardar (Ctrl+S)">
+                        <span class="btn-icon">💾</span>
+                        <span class="btn-text">Guardar</span>
+                    </button>
+                    <div class="export-group">
+                        <button id="export-html-btn" title="Exportar como HTML para web">
+                            <span class="btn-icon">🌐</span>
+                            <span class="btn-text">HTML</span>
+                        </button>
+                        <button id="export-pdf-btn" title="Exportar como PDF para imprimir">
+                            <span class="btn-icon">📄</span>
+                            <span class="btn-text">PDF</span>
+                        </button>
+                        <button id="export-pptx-btn" title="Exportar como PowerPoint">
+                            <span class="btn-icon">📊</span>
+                            <span class="btn-text">PPTX</span>
+                        </button>
+                    </div>
                     <button id="fullscreen-btn" title="Pantalla completa (F11)">⛶</button>
                 </div>
             </div>

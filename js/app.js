@@ -35,6 +35,7 @@ class CeniaMarpEditor {
         this.saveBtn = document.getElementById('save-btn');
         this.exportHtmlBtn = document.getElementById('export-html-btn');
         this.exportPdfBtn = document.getElementById('export-pdf-btn');
+        this.exportPptxBtn = document.getElementById('export-pptx-btn');
         this.fullscreenBtn = document.getElementById('fullscreen-btn');
         this.templateBtn = document.getElementById('template-btn');
         this.helpBtn = document.getElementById('help-btn');
@@ -81,6 +82,7 @@ class CeniaMarpEditor {
         this.saveBtn.addEventListener('click', () => this.savePresentation());
         this.exportHtmlBtn.addEventListener('click', () => this.exportHTML());
         this.exportPdfBtn.addEventListener('click', () => this.exportPDF());
+        this.exportPptxBtn.addEventListener('click', () => this.exportPPTX());
         this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
         this.templateBtn.addEventListener('click', () => this.showTemplateModal());
         this.helpBtn.addEventListener('click', () => this.showHelpModal());
@@ -409,6 +411,11 @@ Subtitle aquí
     exportPDF() {
         const exporter = new MarpExporter();
         exporter.exportPDF(this.slides, this.currentTheme, this.filename);
+    }
+
+    exportPPTX() {
+        const exporter = new MarpExporter();
+        exporter.exportPPTX(this.slides, this.currentTheme, this.filename);
     }
 
     toggleFullscreen() {
