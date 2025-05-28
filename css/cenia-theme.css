@@ -17,61 +17,93 @@
     font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Base Slide Styling - Clean white background with subtle elements */
+/* Base Slide Styling - Clean light gray background like template */
 .slide[data-theme="cenia"] {
-    background: var(--slide-bg);
+    background: #f5f5f5; /* Light gray background like template */
     color: var(--cenia-text);
     line-height: 1.6;
     position: relative;
     
-    /* Add subtle pattern elements like in brand slides */
+    /* Add the dots pattern from template */
     background-image: 
-        radial-gradient(circle at 10% 20%, rgba(231, 40, 135, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(0, 32, 96, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(231, 40, 135, 0.03) 0%, transparent 50%);
+        radial-gradient(circle at 5% 5%, rgba(255,255,255,0.8) 2px, transparent 2px),
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.6) 1px, transparent 1px),
+        radial-gradient(circle at 25% 8%, rgba(255,255,255,0.4) 1px, transparent 1px),
+        radial-gradient(circle at 8% 25%, rgba(255,255,255,0.5) 1px, transparent 1px);
+    background-size: 60px 60px, 40px 40px, 80px 80px, 70px 70px;
+    
+    /* Add the connection lines pattern subtly */
+    background-image: 
+        radial-gradient(circle at 5% 5%, rgba(255,255,255,0.8) 2px, transparent 2px),
+        linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.2) 49%, rgba(255,255,255,0.2) 51%, transparent 52%);
+    background-size: 80px 80px, 120px 120px;
 }
 
-/* Typography - Based on Quicksand font from brand manual */
+/* Content slides layout - like the gray template slides */
+.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide) {
+    padding: 60px 80px 60px 60px; /* More padding like template */
+}
+
+/* Typography - Más limpia y espaciada como el template */
 .slide[data-theme="cenia"] h1 {
     color: var(--cenia-primary);
-    font-size: 3.2rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
+    font-size: 2.8rem;
+    font-weight: 600; /* Less bold, more elegant */
+    margin-bottom: 2rem;
     line-height: 1.2;
     font-family: 'Quicksand', sans-serif;
 }
 
 .slide[data-theme="cenia"] h2 {
     color: var(--cenia-secondary);
-    font-size: 2.4rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
     line-height: 1.3;
     font-family: 'Quicksand', sans-serif;
 }
 
 .slide[data-theme="cenia"] h3 {
     color: var(--cenia-primary);
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin-bottom: 0.8rem;
-    font-family: 'Quicksand', sans-serif;
-}
-
-.slide[data-theme="cenia"] h4 {
-    color: var(--cenia-secondary);
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     font-weight: 500;
-    margin-bottom: 0.6rem;
+    margin-bottom: 1rem;
     font-family: 'Quicksand', sans-serif;
 }
 
 .slide[data-theme="cenia"] p {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
     color: var(--cenia-text);
     font-family: 'Quicksand', sans-serif;
     font-weight: 400;
+    line-height: 1.6;
+}
+
+/* Lists - More spaced like template */
+.slide[data-theme="cenia"] ul {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    padding-left: 0;
+}
+
+.slide[data-theme="cenia"] li {
+    margin-bottom: 0.8rem;
+    position: relative;
+    padding-left: 0;
+    list-style: none;
+    font-family: 'Quicksand', sans-serif;
+    line-height: 1.5;
+}
+
+/* Remove custom bullet, use simple style */
+.slide[data-theme="cenia"] ul > li::before {
+    content: "•";
+    color: var(--cenia-primary);
+    font-weight: bold;
+    position: absolute;
+    left: -1.2rem;
+    top: 0;
 }
 
 /* Lists */
@@ -191,25 +223,29 @@
 
 /* Special Slide Types */
 
-/* Title Slide - Dark blue background like brand slides */
+/* Title Slide - Exact blue background like template with city background */
 .slide[data-theme="cenia"].title-slide {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
     text-align: left;
-    padding-left: 120px;
-    background: linear-gradient(135deg, var(--cenia-secondary) 0%, var(--cenia-dark-blue) 100%);
+    padding: 60px 80px;
+    background: linear-gradient(135deg, #002060 0%, #0a0e50 100%);
+    
+    /* Add city background pattern like template */
     background-image: 
-        radial-gradient(circle at 85% 15%, rgba(231, 40, 135, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 15% 85%, rgba(231, 40, 135, 0.08) 0%, transparent 50%);
+        linear-gradient(135deg, rgba(0,32,96,0.9) 0%, rgba(10,14,80,0.9) 100%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600"><rect width="1000" height="600" fill="%23002060"/><g opacity="0.1" fill="white"><rect x="100" y="200" width="50" height="400"/><rect x="200" y="150" width="40" height="450"/><rect x="300" y="180" width="60" height="420"/><rect x="400" y="120" width="45" height="480"/><rect x="500" y="160" width="55" height="440"/><rect x="600" y="140" width="40" height="460"/><rect x="700" y="190" width="50" height="410"/><rect x="800" y="170" width="45" height="430"/></g></svg>');
+    background-size: cover;
+    background-position: center;
     color: white;
     position: relative;
 }
 
 .slide[data-theme="cenia"].title-slide h1 {
     color: white;
-    font-size: 4.5rem;
+    font-size: 4rem;
     font-weight: 700;
     margin-bottom: 1rem;
     line-height: 1.1;
@@ -217,7 +253,7 @@
 
 .slide[data-theme="cenia"].title-slide h2 {
     color: var(--cenia-primary);
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     font-weight: 400;
     margin-bottom: 2rem;
 }
@@ -226,22 +262,23 @@
     color: rgba(255, 255, 255, 0.9);
     font-size: 1.4rem;
     font-weight: 300;
+    margin-bottom: 3rem;
 }
 
-/* Add CENIA logo/branding area on title slides */
-.slide[data-theme="cenia"].title-slide::before {
+/* Add government agency logo area */
+.slide[data-theme="cenia"].title-slide::after {
     content: "";
     position: absolute;
     top: 60px;
-    left: 60px;
     right: 60px;
+    width: 150px;
     height: 80px;
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50"><text x="10" y="30" fill="white" font-family="Quicksand" font-size="24" font-weight="700">CENIA</text><text x="10" y="45" fill="rgba(255,255,255,0.8)" font-family="Quicksand" font-size="10">CENTRO NACIONAL DE INTELIGENCIA ARTIFICIAL</text></svg>');
-    background-repeat: no-repeat;
-    background-size: contain;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
 }
 
-/* Section Slide - Pink background */
+/* Section Slide - Pink background like template */
 .slide[data-theme="cenia"].section-slide {
     display: flex;
     justify-content: center;
@@ -272,36 +309,57 @@
     gap: 1.5rem;
 }
 
-/* Footer/Header Elements */
-.slide[data-theme="cenia"]::before {
+/* Footer elements - Cleaner like template */
+.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide)::after {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--cenia-primary) 0%, var(--cenia-secondary) 100%);
-}
-
-.slide[data-theme="cenia"]::after {
-    content: "CENIA";
-    position: absolute;
     bottom: 20px;
-    right: 60px;
-    font-size: 0.9rem;
-    color: var(--cenia-gray);
-    font-weight: 500;
-    opacity: 0.7;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: var(--cenia-primary);
+    border-radius: 6px;
+    
+    /* Add CENIA logo symbol */
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><g fill="white"><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="24" cy="8" r="1.5"/><circle cx="32" cy="16" r="1.5"/><circle cx="12" cy="20" r="1.5"/><circle cx="20" cy="24" r="1.5"/><circle cx="28" cy="28" r="1.5"/><line x1="8" y1="8" x2="16" y2="12" stroke="white" stroke-width="1"/><line x1="16" y1="12" x2="24" y2="8" stroke="white" stroke-width="1"/><line x1="24" y1="8" x2="32" y2="16" stroke="white" stroke-width="1"/><line x1="12" y1="20" x2="20" y2="24" stroke="white" stroke-width="1"/><line x1="20" y1="24" x2="28" y2="28" stroke="white" stroke-width="1"/></g></svg>');
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-/* Pagination */
+/* Pagination - Subtle and clean */
 .slide[data-theme="cenia"][data-paginate] .pagination {
     position: absolute;
-    bottom: 20px;
+    bottom: 30px;
     left: 60px;
     font-size: 0.9rem;
     color: var(--cenia-gray);
-    opacity: 0.7;
+    opacity: 0.8;
+    font-family: 'Quicksand', sans-serif;
+}
+
+/* Two column layout support */
+.slide[data-theme="cenia"] .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    height: calc(100% - 120px);
+    align-items: start;
+}
+
+.slide[data-theme="cenia"] .columns.three {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Mascot positioning area */
+.slide[data-theme="cenia"] .mascot-area {
+    position: absolute;
+    bottom: 60px;
+    right: 60px;
+    width: 120px;
+    height: 120px;
+    /* Space reserved for mascot image */
 }
 
 /* Image Styling */
