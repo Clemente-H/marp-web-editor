@@ -121,6 +121,11 @@ class CeniaMarpEditor {
             if (e.target === this.helpModal) this.hideHelpModal();
         });
 
+        // Fullscreen change detection
+        document.addEventListener('fullscreenchange', () => this.handleFullscreenChange());
+        document.addEventListener('webkitfullscreenchange', () => this.handleFullscreenChange());
+        document.addEventListener('msfullscreenchange', () => this.handleFullscreenChange());
+
         // Auto-save every 30 seconds
         setInterval(() => {
             if (this.isUnsaved) {
@@ -328,6 +333,107 @@ class CeniaMarpEditor {
         this.updateZoom();
     }
 
+    // ============================================
+    // FULLSCREEN FUNCTIONALITY - LUGAR CORRECTO
+    // ============================================
+    toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            // Entrar en fullscreen
+            const previewContainer = document.querySelector('.preview-container');
+            if (previewContainer.requestFullscreen) {
+                previewContainer.requestFullscreen();
+            } else if (previewContainer.webkitRequestFullscreen) {
+                previewContainer.webkitRequestFullscreen();
+            } else if (previewContainer.msRequestFullscreen) {
+                previewContainer.msRequestFullscreen();
+            }
+            
+            // Ajustar estilos para fullscreen
+            setTimeout(() => {
+                this.adjustFullscreenStyles(true);
+            }, 100);
+            
+        } else {
+            // Salir de fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+    }
+
+    handleFullscreenChange() {
+        const isFullscreen = !!(document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.msFullscreenElement);
+        
+        console.log('Fullscreen changed:', isFullscreen);
+        this.adjustFullscreenStyles(isFullscreen);
+    }
+
+    adjustFullscreenStyles(isFullscreen) {
+        const slidesContainer = document.getElementById('slides-container');
+        const slides = slidesContainer.querySelectorAll('.slide');
+        
+        if (isFullscreen) {
+            // Calcular el zoom apropiado para fullscreen
+            const containerWidth = window.innerWidth * 0.9; // 90% del ancho de pantalla
+            const containerHeight = window.innerHeight * 0.9; // 90% del alto de pantalla
+            const slideWidth = 960; // Ancho original del slide
+            const slideHeight = 540; // Alto original del slide
+            
+            // Calcular escalas para mantener aspecto y que quepa en pantalla
+            const scaleX = containerWidth / slideWidth;
+            const scaleY = containerHeight / slideHeight;
+            const fullscreenScale = Math.min(scaleX, scaleY, 2.0); // Máximo 200%
+            
+            console.log(`Fullscreen scale calculated: ${fullscreenScale}`);
+            
+            // Aplicar estilos para fullscreen
+            slidesContainer.style.position = 'fixed';
+            slidesContainer.style.top = '50%';
+            slidesContainer.style.left = '50%';
+            slidesContainer.style.transform = 'translate(-50%, -50%)';
+            slidesContainer.style.zIndex = '9999';
+            slidesContainer.style.background = '#f8f9fa';
+            slidesContainer.style.padding = '20px';
+            slidesContainer.style.borderRadius = '8px';
+            
+            slides.forEach(slide => {
+                slide.style.transform = `scale(${fullscreenScale})`;
+                slide.style.transformOrigin = 'center center';
+                slide.style.width = '960px';
+                slide.style.height = '540px';
+                slide.style.margin = 'auto';
+                slide.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
+            });
+            
+        } else {
+            // Restaurar estilos normales
+            slidesContainer.style.position = '';
+            slidesContainer.style.top = '';
+            slidesContainer.style.left = '';
+            slidesContainer.style.transform = '';
+            slidesContainer.style.zIndex = '';
+            slidesContainer.style.background = '';
+            slidesContainer.style.padding = '';
+            slidesContainer.style.borderRadius = '';
+            
+            slides.forEach(slide => {
+                // Restaurar el zoom que tenía antes del fullscreen
+                slide.style.transform = `scale(${this.zoomLevel / 100})`;
+                slide.style.transformOrigin = 'top left';
+                slide.style.width = '960px';
+                slide.style.height = '540px';
+                slide.style.margin = '';
+                slide.style.boxShadow = '';
+            });
+        }
+    }
+
     // File operations
     newPresentation() {
         if (this.isUnsaved) {
@@ -416,14 +522,6 @@ Subtitle aquí
     exportPPTX() {
         const exporter = new MarpExporter();
         exporter.exportPPTX(this.slides, this.currentTheme, this.filename);
-    }
-
-    toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            this.slidesContainer.requestFullscreen();
-        } else {
-            document.exitFullscreen();
-        }
     }
 
     // Template and help modals
