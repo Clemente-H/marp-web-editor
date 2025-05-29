@@ -357,28 +357,6 @@
     opacity: 0.8;
 }
 
-/* FOOTER Y BRANDING */
-
-/* Ícono CENIA simple en esquina inferior derecha */
-.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide)::after {
-    content: "";
-    position: absolute;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    background: var(--cenia-primary);
-    border-radius: 12px;
-    
-    /* Ícono simple de red neural/AI */
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g fill="white"><circle cx="12" cy="15" r="3"/><circle cx="30" cy="10" r="3"/><circle cx="48" cy="18" r="3"/><circle cx="15" cy="35" r="3"/><circle cx="35" cy="40" r="3"/><circle cx="45" cy="50" r="3"/><line x1="12" y1="15" x2="30" y2="10" stroke="white" stroke-width="1.5"/><line x1="30" y1="10" x2="48" y2="18" stroke="white" stroke-width="1.5"/><line x1="12" y1="15" x2="15" y2="35" stroke="white" stroke-width="1.5"/><line x1="15" y1="35" x2="35" y2="40" stroke="white" stroke-width="1.5"/><line x1="35" y1="40" x2="45" y2="50" stroke="white" stroke-width="1.5"/><line x1="48" y1="18" x2="35" y2="40" stroke="white" stroke-width="1.5"/></g></svg>');
-    background-size: 36px 36px;
-    background-repeat: no-repeat;
-    background-position: center;
-    
-    box-shadow: 0 4px 12px rgba(231,40,135,0.3);
-}
-
 /* Numeración de páginas */
 .slide[data-theme="cenia"][data-paginate] .pagination {
     position: absolute;
@@ -391,17 +369,6 @@
     padding: 0.5rem 1rem;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Línea superior decorativa */
-.slide[data-theme="cenia"]:not(.title-slide):not(.section-slide)::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: linear-gradient(90deg, var(--cenia-primary) 0%, var(--cenia-secondary) 100%);
 }
 
 /* Imágenes */
