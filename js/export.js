@@ -1,4 +1,4 @@
-// Exportador CENIA Marp Editor - Versión Simplificada y Limpia
+// Exportador CENIA Marp Editor - PPTX con contenido real del markdown
 class MarpExporter {
     constructor() {
         this.defaultCSS = '';
@@ -238,15 +238,15 @@ class MarpExporter {
     }
 
     // ============================================
-    // EXPORT PPTX - Solo backgrounds por ahora
+    // EXPORT PPTX - AHORA CON CONTENIDO REAL DEL MARKDOWN
     // ============================================
     async exportPPTX(slides, theme, filename) {
         try {
-            this.showLoadingMessage('Generando PowerPoint...');
+            this.showLoadingMessage('Generando PowerPoint con contenido real...');
             
             await this.loadPPTXLibrary();
             
-            console.log('=== INICIANDO EXPORT PPTX ===');
+            console.log('=== INICIANDO EXPORT PPTX CON MARKDOWN ===');
             console.log('PptxGenJS cargado:', !!window.PptxGenJS);
             console.log('Total slides:', slides.length);
             
@@ -269,10 +269,11 @@ class MarpExporter {
                 console.log('- Classes:', slideData.classes);
                 console.log('- isTitle:', isTitle);
                 console.log('- isSection:', isSection);
+                console.log('- Markdown:', slideData.markdown.substring(0, 100) + '...');
                 
                 const slide = pres.addSlide();
                 
-                // Solo aplicar backgrounds por ahora
+                // Aplicar backgrounds
                 if (theme === 'cenia') {
                     if (isTitle && this.backgroundImages.title) {
                         console.log('→ Aplicando fondo título PPT');
@@ -305,13 +306,8 @@ class MarpExporter {
                     }
                 }
                 
-                // Texto simple para verificar que funciona
-                slide.addText(`Slide ${i + 1} - ${isTitle ? 'TÍTULO' : isSection ? 'SECCIÓN' : 'CONTENIDO'}`, {
-                    x: 1, y: 1, w: 11, h: 1,
-                    fontSize: 24, 
-                    color: isTitle || isSection ? 'FFFFFF' : '000000',
-                    fontFace: 'Arial'
-                });
+                // ✅ AGREGAR CONTENIDO REAL DEL MARKDOWN
+                this.addPPTXTextContent(slide, slideData, isTitle, isSection, i);
                 
                 this.updateLoadingMessage(`Creando slide ${i + 1}/${slides.length}...`);
             }
@@ -325,6 +321,146 @@ class MarpExporter {
             console.error('Error stack:', e.stack);
             this.hideLoadingMessage();
             alert(`Error al exportar PowerPoint: ${e.message}`);
+        }
+    }
+
+    // ============================================
+    // NUEVA FUNCIÓN: AGREGAR CONTENIDO MARKDOWN A PPTX
+    // ============================================
+    addPPTXTextContent(slide, slideData, isTitle, isSection, slideIndex) {
+        console.log(`\n--- Procesando contenido slide ${slideIndex + 1} ---`);
+        
+        const lines = this.parseMarkdownLines(slideData.markdown);
+        console.log('Lines to process:', lines);
+        
+        let currentY = isTitle || isSection ? 1.5 : 1.0; // Posición Y inicial
+        const leftMargin = isTitle || isSection ? 1.0 : 0.8;
+        const maxWidth = 11.5; // Ancho máximo del texto
+        
+        lines.forEach((line, lineIndex) => {
+            const { type, content } = this.parseLineType(line);
+            const textContent = String(content || '').trim();
+            
+            console.log(`Line ${lineIndex}: type="${type}", content="${textContent}"`);
+            
+            if (!textContent) return; // Saltar líneas vacías
+            
+            // Configuración de estilos según tipo de slide y elemento
+            let textOptions = this.getPPTXTextStyle(type, isTitle, isSection);
+            
+            // Posición y tamaño del texto
+            textOptions.x = leftMargin;
+            textOptions.y = currentY;
+            textOptions.w = maxWidth;
+            textOptions.h = textOptions.fontSize ? (textOptions.fontSize / 72) * 1.5 : 0.8; // Auto height
+            
+            // Ajustes especiales para slides de sección (centrados)
+            if (isSection && type === 'h1') {
+                textOptions.x = 0;
+                textOptions.y = 3.0; // Centro vertical
+                textOptions.w = 13.33; // Todo el ancho
+                textOptions.align = 'center';
+                textOptions.valign = 'middle';
+                textOptions.fontSize = 48;
+            }
+            
+            console.log(`Adding text: "${textContent}" with options:`, textOptions);
+            
+            // Agregar el texto al slide
+            slide.addText(textContent, textOptions);
+            
+            // Incrementar posición Y para siguiente elemento
+            currentY += this.getPPTXLineHeight(type, textOptions.fontSize);
+            
+            // Evitar overflow vertical
+            if (currentY > 6.5) {
+                console.log('Reached bottom of slide, stopping text addition');
+                return;
+            }
+        });
+        
+        // Agregar numeración si está habilitada
+        if (slideData.directives && slideData.directives.paginate && !isTitle && !isSection) {
+            slide.addText(String(slideIndex + 1), {
+                x: 0.5, y: 6.8, w: 1, h: 0.4,
+                fontSize: 12,
+                color: '757070', // gris CENIA
+                fontFace: 'Arial'
+            });
+            console.log(`Added pagination: ${slideIndex + 1}`);
+        }
+    }
+
+    // ============================================
+    // ESTILOS PARA DIFERENTES TIPOS DE CONTENIDO
+    // ============================================
+    getPPTXTextStyle(type, isTitle, isSection) {
+        // Colores según tipo de slide
+        const titleColor = isTitle || isSection ? 'FFFFFF' : 'e72887'; // Blanco o rosa CENIA
+        const subtitleColor = isTitle ? 'e72887' : '002060'; // Rosa o azul CENIA
+        const textColor = isTitle || isSection ? 'FFFFFF' : '333333'; // Blanco o gris oscuro
+        
+        switch (type) {
+            case 'h1':
+                return {
+                    fontSize: isTitle ? 44 : isSection ? 48 : 32,
+                    bold: true,
+                    color: titleColor,
+                    fontFace: 'Arial'
+                };
+                
+            case 'h2':
+                return {
+                    fontSize: isTitle ? 32 : 28,
+                    bold: true,
+                    color: subtitleColor,
+                    fontFace: 'Arial'
+                };
+                
+            case 'h3':
+                return {
+                    fontSize: isTitle ? 24 : 20,
+                    bold: true,
+                    color: titleColor,
+                    fontFace: 'Arial'
+                };
+                
+            case 'list':
+                return {
+                    fontSize: 18,
+                    color: textColor,
+                    fontFace: 'Arial',
+                    bullet: { type: 'bullet' }
+                };
+                
+            case 'text':
+            default:
+                return {
+                    fontSize: isTitle ? 20 : 16,
+                    color: textColor,
+                    fontFace: 'Arial'
+                };
+        }
+    }
+
+    // ============================================
+    // CALCULAR ALTURA DE LÍNEA PARA ESPACIADO
+    // ============================================
+    getPPTXLineHeight(type, fontSize) {
+        const baseHeight = (fontSize || 16) / 72; // Convertir pt a inches
+        
+        switch (type) {
+            case 'h1':
+                return baseHeight * 1.8; // Más espacio después de títulos
+            case 'h2':
+                return baseHeight * 1.6;
+            case 'h3':
+                return baseHeight * 1.4;
+            case 'list':
+                return baseHeight * 1.3;
+            case 'text':
+            default:
+                return baseHeight * 1.4;
         }
     }
 
@@ -352,9 +488,9 @@ class MarpExporter {
         } else if (trimmed.startsWith('### ')) {
             return { type: 'h3', content: trimmed.substring(4).trim() };
         } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-            return { type: 'list', content: '• ' + trimmed.substring(2).trim() };
+            return { type: 'list', content: trimmed.substring(2).trim() };
         } else if (trimmed.match(/^\d+\. /)) {
-            return { type: 'list', content: trimmed };
+            return { type: 'list', content: trimmed.replace(/^\d+\. /, '') };
         } else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
             return { type: 'text', content: trimmed.slice(2, -2) };
         } else if (trimmed.startsWith('*') && trimmed.endsWith('*')) {
