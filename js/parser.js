@@ -159,15 +159,9 @@ class MarpParser {
             classes.push('title-slide');
         }
         
-        // Section slide detection
-        if (slide.directives.class === 'section' || 
-            (firstLine.startsWith('# ') && lines.length === 1)) {
-            classes.push('section-slide');
-        }
-        
-        // Other slide types based on directives
-        if (slide.directives.class) {
-            classes.push(slide.directives.class);
+        // Section slide detection - AQUÍ ESTÁ EL PROBLEMA
+        if (slide.directives.class === 'section-slide') {
+            classes.push('section-slide');  // ✅ Debería ser esto
         }
         
         return classes;
