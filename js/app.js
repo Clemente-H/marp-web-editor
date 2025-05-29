@@ -7,6 +7,7 @@ class CeniaMarpEditor {
         this.currentTheme = 'cenia';
         this.isUnsaved = false;
         this.filename = 'Presentación Sin Título';
+        this.isFullscreen = false; // Track fullscreen state
         
         this.init();
     }
@@ -145,7 +146,26 @@ class CeniaMarpEditor {
 
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + shortcuts
+            // Handle fullscreen shortcuts globally
+            if (e.key === 'Escape' && this.isFullscreen) {
+                e.preventDefault();
+                this.exitFullscreen();
+                return;
+            }
+
+            if (e.key === 'F11') {
+                e.preventDefault();
+                this.toggleFullscreen();
+                return;
+            }
+
+            // Handle navigation in fullscreen
+            if (this.isFullscreen) {
+                this.handleFullscreenNavigation(e);
+                return;
+            }
+
+            // Ctrl/Cmd + shortcuts (only when not in fullscreen)
             if (e.ctrlKey || e.metaKey) {
                 switch (e.key) {
                     case 'n':
@@ -167,8 +187,8 @@ class CeniaMarpEditor {
                 }
             }
 
-            // Navigation shortcuts
-            if (e.target !== this.editor) {
+            // Navigation shortcuts (only when not focused on editor)
+            if (e.target !== this.editor && !this.isFullscreen) {
                 switch (e.key) {
                     case 'ArrowLeft':
                         this.previousSlide();
@@ -185,18 +205,37 @@ class CeniaMarpEditor {
                 }
             }
 
-            // Fullscreen
-            if (e.key === 'F11') {
-                e.preventDefault();
-                this.toggleFullscreen();
-            }
-
-            // Escape to close modals
+            // Escape to close modals (only when not in fullscreen)
             if (e.key === 'Escape') {
                 this.hideTemplateModal();
                 this.hideHelpModal();
             }
         });
+    }
+
+    handleFullscreenNavigation(e) {
+        switch (e.key) {
+            case 'ArrowLeft':
+                e.preventDefault();
+                this.previousSlide();
+                this.updateFullscreenSlide();
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                this.nextSlide();
+                this.updateFullscreenSlide();
+                break;
+            case 'Home':
+                e.preventDefault();
+                this.goToSlide(0);
+                this.updateFullscreenSlide();
+                break;
+            case 'End':
+                e.preventDefault();
+                this.goToSlide(this.slides.length - 1);
+                this.updateFullscreenSlide();
+                break;
+        }
     }
 
     setupSplitter() {
@@ -243,6 +282,11 @@ class CeniaMarpEditor {
         this.renderSlides();
         this.updateNavigation();
         this.saveToStorage();
+        
+        // Update fullscreen if active
+        if (this.isFullscreen) {
+            this.updateFullscreenSlide();
+        }
     }
 
     renderSlides() {
@@ -334,201 +378,212 @@ class CeniaMarpEditor {
     }
 
     // ============================================
-    // FULLSCREEN FUNCTIONALITY - ARREGLADO PARA TODO EL VIEWPORT
+    // FULLSCREEN FUNCTIONALITY - COMPLETAMENTE REDISEÑADO
     // ============================================
     toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            // Entrar en fullscreen - usar todo el documento
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
-            } else if (document.documentElement.msRequestFullscreen) {
-                document.documentElement.msRequestFullscreen();
-            }
-            
-            // Ajustar estilos para fullscreen
-            setTimeout(() => {
-                this.adjustFullscreenStyles(true);
-            }, 100);
-            
+        if (this.isFullscreen) {
+            this.exitFullscreen();
         } else {
-            // Salir de fullscreen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            }
+            this.enterFullscreen();
         }
+    }
+
+    enterFullscreen() {
+        console.log('🎯 Entrando en fullscreen...');
+        
+        // First, request fullscreen
+        const docElement = document.documentElement;
+        if (docElement.requestFullscreen) {
+            docElement.requestFullscreen();
+        } else if (docElement.webkitRequestFullscreen) {
+            docElement.webkitRequestFullscreen();
+        } else if (docElement.msRequestFullscreen) {
+            docElement.msRequestFullscreen();
+        }
+
+        // Create fullscreen overlay immediately
+        this.createFullscreenOverlay();
+        this.isFullscreen = true;
+        
+        console.log('✅ Fullscreen activado');
+    }
+
+    exitFullscreen() {
+        console.log('🎯 Saliendo de fullscreen...');
+        
+        this.isFullscreen = false;
+        this.removeFullscreenOverlay();
+        
+        // Exit browser fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        
+        console.log('✅ Fullscreen desactivado');
     }
 
     handleFullscreenChange() {
-        const isFullscreen = !!(document.fullscreenElement || 
-                                document.webkitFullscreenElement || 
-                                document.msFullscreenElement);
+        const isInBrowserFullscreen = !!(document.fullscreenElement || 
+                                        document.webkitFullscreenElement || 
+                                        document.msFullscreenElement);
         
-        console.log('Fullscreen changed:', isFullscreen);
-        this.adjustFullscreenStyles(isFullscreen);
-    }
-
-    adjustFullscreenStyles(isFullscreen) {
-        const slidesContainer = document.getElementById('slides-container');
-        const slides = slidesContainer.querySelectorAll('.slide');
-        const appContainer = document.querySelector('.app-container');
+        console.log('📱 Fullscreen change detected:', isInBrowserFullscreen);
         
-        if (isFullscreen) {
-            // Calcular el zoom apropiado para fullscreen
-            const containerWidth = window.innerWidth * 0.95; // 95% del ancho de pantalla
-            const containerHeight = window.innerHeight * 0.95; // 95% del alto de pantalla
-            const slideWidth = 960; // Ancho original del slide
-            const slideHeight = 540; // Alto original del slide
-            
-            // Calcular escalas para mantener aspecto y que quepa en pantalla
-            const scaleX = containerWidth / slideWidth;
-            const scaleY = containerHeight / slideHeight;
-            const fullscreenScale = Math.min(scaleX, scaleY, 2.5); // Máximo 250%
-            
-            console.log(`Fullscreen scale calculated: ${fullscreenScale}`);
-            
-            // Ocultar toda la interfaz
-            appContainer.style.display = 'none';
-            
-            // Crear overlay fullscreen
-            const fullscreenOverlay = document.createElement('div');
-            fullscreenOverlay.id = 'fullscreen-overlay';
-            fullscreenOverlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background: #000;
-                z-index: 99999;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                cursor: pointer;
-            `;
-            
-            // Clonar el slide activo
-            const activeSlide = slidesContainer.querySelector('.slide.active');
-            if (activeSlide) {
-                const slideClone = activeSlide.cloneNode(true);
-                slideClone.style.cssText = `
-                    width: 960px;
-                    height: 540px;
-                    transform: scale(${fullscreenScale});
-                    transform-origin: center center;
-                    box-shadow: 0 8px 32px rgba(255,255,255,0.2);
-                    border-radius: 8px;
-                    overflow: hidden;
-                `;
-                
-                fullscreenOverlay.appendChild(slideClone);
-            }
-            
-            // Agregar instrucciones
-            const instructions = document.createElement('div');
-            instructions.style.cssText = `
-                position: absolute;
-                bottom: 30px;
-                left: 50%;
-                transform: translateX(-50%);
-                color: rgba(255,255,255,0.7);
-                font-size: 14px;
-                text-align: center;
-            `;
-            instructions.innerHTML = `
-                <div>Presiona ESC o haz clic para salir | ← → para navegar</div>
-            `;
-            fullscreenOverlay.appendChild(instructions);
-            
-            // Agregar al documento
-            document.body.appendChild(fullscreenOverlay);
-            
-            // Event listeners para navegación en fullscreen
-            this.setupFullscreenNavigation(fullscreenOverlay);
-            
-        } else {
-            // Restaurar estilos normales
-            const fullscreenOverlay = document.getElementById('fullscreen-overlay');
-            if (fullscreenOverlay) {
-                fullscreenOverlay.remove();
-            }
-            
-            // Mostrar interfaz nuevamente
-            appContainer.style.display = '';
-            
-            // Restaurar slides normales
-            slides.forEach(slide => {
-                slide.style.transform = `scale(${this.zoomLevel / 100})`;
-                slide.style.transformOrigin = 'top left';
-                slide.style.width = '960px';
-                slide.style.height = '540px';
-                slide.style.margin = '';
-                slide.style.boxShadow = '';
-            });
+        // If browser exited fullscreen but we think we're still in fullscreen
+        if (!isInBrowserFullscreen && this.isFullscreen) {
+            console.log('🔄 Browser salió de fullscreen, limpiando...');
+            this.isFullscreen = false;
+            this.removeFullscreenOverlay();
         }
     }
 
-    setupFullscreenNavigation(overlay) {
-        const handleFullscreenKeyDown = (e) => {
-            switch (e.key) {
-                case 'Escape':
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    }
-                    break;
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    this.previousSlide();
-                    this.updateFullscreenSlide(overlay);
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    this.nextSlide();
-                    this.updateFullscreenSlide(overlay);
-                    break;
-                case 'Home':
-                    e.preventDefault();
-                    this.goToSlide(0);
-                    this.updateFullscreenSlide(overlay);
-                    break;
-                case 'End':
-                    e.preventDefault();
-                    this.goToSlide(this.slides.length - 1);
-                    this.updateFullscreenSlide(overlay);
-                    break;
-            }
-        };
+    createFullscreenOverlay() {
+        console.log('🎨 Creando overlay fullscreen...');
+        
+        // Remove existing overlay if any
+        this.removeFullscreenOverlay();
+        
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'fullscreen-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        `;
 
-        const handleFullscreenClick = (e) => {
-            if (e.target === overlay) {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        };
+        // Create slide container
+        const slideContainer = document.createElement('div');
+        slideContainer.id = 'fullscreen-slide';
+        slideContainer.style.cssText = `
+            width: 960px;
+            height: 540px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(255,255,255,0.2);
+            transform-origin: center center;
+        `;
 
-        document.addEventListener('keydown', handleFullscreenKeyDown);
-        overlay.addEventListener('click', handleFullscreenClick);
+        // Calculate scale to fit screen
+        const scale = Math.min(
+            (window.innerWidth * 0.9) / 960,
+            (window.innerHeight * 0.85) / 540
+        );
+        slideContainer.style.transform = `scale(${Math.min(scale, 2)})`;
 
-        // Limpiar listeners cuando se cierre fullscreen
-        overlay.addEventListener('remove', () => {
-            document.removeEventListener('keydown', handleFullscreenKeyDown);
+        // Add current slide content
+        this.updateFullscreenSlideContent(slideContainer);
+
+        // Create controls
+        const controls = document.createElement('div');
+        controls.style.cssText = `
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px 25px;
+            border-radius: 25px;
+            color: white;
+            font-family: Arial, sans-serif;
+        `;
+
+        controls.innerHTML = `
+            <button id="fs-prev" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 5px 10px;">◀</button>
+            <span id="fs-counter" style="font-size: 16px; min-width: 80px; text-align: center;">${this.currentSlide + 1} / ${this.slides.length}</span>
+            <button id="fs-next" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 5px 10px;">▶</button>
+            <span style="font-size: 14px; opacity: 0.7; margin-left: 20px;">ESC para salir | ← → para navegar</span>
+        `;
+
+        // Add controls event listeners
+        controls.querySelector('#fs-prev').addEventListener('click', () => {
+            this.previousSlide();
+            this.updateFullscreenSlide();
         });
+        
+        controls.querySelector('#fs-next').addEventListener('click', () => {
+            this.nextSlide();
+            this.updateFullscreenSlide();
+        });
+
+        // Assemble overlay
+        overlay.appendChild(slideContainer);
+        overlay.appendChild(controls);
+
+        // Add click to close
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                this.exitFullscreen();
+            }
+        });
+
+        document.body.appendChild(overlay);
+        console.log('✅ Overlay creado y añadido');
     }
 
-    updateFullscreenSlide(overlay) {
-        const slideContainer = overlay.querySelector('.slide');
-        const activeSlide = this.slidesContainer.querySelector('.slide.active');
-        
-        if (slideContainer && activeSlide) {
-            slideContainer.innerHTML = activeSlide.innerHTML;
-            slideContainer.className = activeSlide.className;
+    removeFullscreenOverlay() {
+        const overlay = document.getElementById('fullscreen-overlay');
+        if (overlay) {
+            overlay.remove();
+            console.log('🗑️ Overlay removido');
         }
+    }
+
+    updateFullscreenSlideContent(container) {
+        if (!container) {
+            container = document.querySelector('#fullscreen-slide');
+        }
+        
+        if (!container) return;
+
+        const activeSlide = this.slidesContainer.querySelector('.slide.active');
+        if (activeSlide) {
+            container.innerHTML = activeSlide.innerHTML;
+            container.className = activeSlide.className;
+            container.dataset.theme = activeSlide.dataset.theme;
+            
+            // Apply theme styles
+            if (this.currentTheme) {
+                container.setAttribute('data-theme', this.currentTheme);
+            }
+            
+            console.log(`📄 Slide ${this.currentSlide + 1} actualizado en fullscreen`);
+        }
+    }
+
+    updateFullscreenSlide() {
+        if (!this.isFullscreen) return;
+        
+        this.updateFullscreenSlideContent();
+        
+        // Update counter
+        const counter = document.querySelector('#fs-counter');
+        if (counter) {
+            counter.textContent = `${this.currentSlide + 1} / ${this.slides.length}`;
+        }
+        
+        // Update button states
+        const prevBtn = document.querySelector('#fs-prev');
+        const nextBtn = document.querySelector('#fs-next');
+        if (prevBtn) prevBtn.disabled = this.currentSlide === 0;
+        if (nextBtn) nextBtn.disabled = this.currentSlide >= this.slides.length - 1;
     }
 
     // File operations
