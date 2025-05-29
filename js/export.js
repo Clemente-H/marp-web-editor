@@ -163,37 +163,36 @@ class MarpExporter {
         lines.forEach(line => {
             const { type, content } = this.parseLineType(line);
             
+            // Asegurar que content es string
+            const textContent = String(content || '').trim();
+            if (!textContent) return;
+            
             switch (type) {
                 case 'h1':
-                    slide.addText(content, {
+                    slide.addText(textContent, {
                         x: 1, y: yPos, w: 11, h: 1.5,
                         fontSize: 48, bold: true, color: 'FFFFFF',
-                        fontFace: 'Quicksand',
-                        isTextBox: true // Hace que sea editable
+                        fontFace: 'Arial' // Cambiar a Arial para compatibilidad
                     });
                     yPos += 2;
                     break;
                     
                 case 'h2':
-                    slide.addText(content, {
+                    slide.addText(textContent, {
                         x: 1, y: yPos, w: 11, h: 1,
                         fontSize: 28, color: 'e72887',
-                        fontFace: 'Quicksand',
-                        isTextBox: true
+                        fontFace: 'Arial'
                     });
                     yPos += 1.2;
                     break;
                     
                 case 'text':
-                    if (content.trim()) {
-                        slide.addText(content, {
-                            x: 1, y: yPos, w: 11, h: 0.8,
-                            fontSize: 20, color: 'FFFFFF',
-                            fontFace: 'Quicksand',
-                            isTextBox: true
-                        });
-                        yPos += 1;
-                    }
+                    slide.addText(textContent, {
+                        x: 1, y: yPos, w: 11, h: 0.8,
+                        fontSize: 20, color: 'FFFFFF',
+                        fontFace: 'Arial'
+                    });
+                    yPos += 1;
                     break;
             }
         });
@@ -206,13 +205,15 @@ class MarpExporter {
             const { type, content } = this.parseLineType(line);
             
             if (type === 'h1') {
-                slide.addText(content, {
-                    x: 1, y: 3, w: 11.33, h: 2,
-                    fontSize: 48, bold: true, color: 'FFFFFF',
-                    align: 'center', valign: 'middle',
-                    fontFace: 'Quicksand',
-                    isTextBox: true
-                });
+                const textContent = String(content || '').trim();
+                if (textContent) {
+                    slide.addText(textContent, {
+                        x: 1, y: 3, w: 11.33, h: 2,
+                        fontSize: 48, bold: true, color: 'FFFFFF',
+                        align: 'center', valign: 'middle',
+                        fontFace: 'Arial'
+                    });
+                }
             }
         });
     }
@@ -224,57 +225,54 @@ class MarpExporter {
         lines.forEach(line => {
             const { type, content } = this.parseLineType(line);
             
+            // Asegurar que content es string
+            const textContent = String(content || '').trim();
+            if (!textContent) return;
+            
             switch (type) {
                 case 'h1':
-                    slide.addText(content, {
+                    slide.addText(textContent, {
                         x: 0.5, y: yPos, w: 12, h: 1,
                         fontSize: 32, bold: true, color: 'e72887',
-                        fontFace: 'Quicksand',
-                        isTextBox: true
+                        fontFace: 'Arial'
                     });
                     yPos += 1.2;
                     break;
                     
                 case 'h2':
-                    slide.addText(content, {
+                    slide.addText(textContent, {
                         x: 0.5, y: yPos, w: 12, h: 0.8,
                         fontSize: 24, bold: true, color: '002060',
-                        fontFace: 'Quicksand',
-                        isTextBox: true
+                        fontFace: 'Arial'
                     });
                     yPos += 1;
                     break;
                     
                 case 'h3':
-                    slide.addText(content, {
+                    slide.addText(textContent, {
                         x: 0.5, y: yPos, w: 12, h: 0.6,
                         fontSize: 18, bold: true, color: 'e72887',
-                        fontFace: 'Quicksand',
-                        isTextBox: true
+                        fontFace: 'Arial'
                     });
                     yPos += 0.8;
                     break;
                     
                 case 'list':
-                    slide.addText(content, {
+                    slide.addText(textContent, {
                         x: 1, y: yPos, w: 11, h: 0.5,
                         fontSize: 16, color: '333333',
-                        fontFace: 'Quicksand',
-                        isTextBox: true
+                        fontFace: 'Arial'
                     });
                     yPos += 0.6;
                     break;
                     
                 case 'text':
-                    if (content.trim()) {
-                        slide.addText(content, {
-                            x: 0.5, y: yPos, w: 12, h: 0.5,
-                            fontSize: 16, color: '333333',
-                            fontFace: 'Quicksand',
-                            isTextBox: true
-                        });
-                        yPos += 0.7;
-                    }
+                    slide.addText(textContent, {
+                        x: 0.5, y: yPos, w: 12, h: 0.5,
+                        fontSize: 16, color: '333333',
+                        fontFace: 'Arial'
+                    });
+                    yPos += 0.7;
                     break;
             }
             
@@ -283,11 +281,11 @@ class MarpExporter {
         });
 
         // Agregar numeración si está habilitada
-        if (slideData.directives.paginate) {
-            slide.addText((index + 1).toString(), {
+        if (slideData.directives && slideData.directives.paginate) {
+            slide.addText(String(index + 1), {
                 x: 0.5, y: 6.8, w: 1, h: 0.5,
                 fontSize: 12, color: '757070',
-                fontFace: 'Quicksand'
+                fontFace: 'Arial'
             });
         }
     }
@@ -416,36 +414,36 @@ class MarpExporter {
 
     drawTitleContent(pdf, slideData, width, height) {
         const lines = this.parseMarkdownLines(slideData.markdown);
-        let yPos = 80;
+        let yPos = 60; // Más centrado
         
         lines.forEach(line => {
             const { type, content } = this.parseLineType(line);
+            const textContent = String(content || '').trim();
+            if (!textContent) return;
             
             switch (type) {
                 case 'h1':
                     pdf.setTextColor(255, 255, 255);
-                    pdf.setFontSize(36);
+                    pdf.setFontSize(40);
                     pdf.setFont('helvetica', 'bold');
-                    pdf.text(content, 30, yPos, { maxWidth: 240 });
-                    yPos += 40;
+                    pdf.text(textContent, 30, yPos, { maxWidth: 240 });
+                    yPos += 50;
                     break;
                     
                 case 'h2':
                     pdf.setTextColor(231, 40, 135);
-                    pdf.setFontSize(24);
+                    pdf.setFontSize(28);
                     pdf.setFont('helvetica', 'normal');
-                    pdf.text(content, 30, yPos, { maxWidth: 240 });
-                    yPos += 30;
+                    pdf.text(textContent, 30, yPos, { maxWidth: 240 });
+                    yPos += 35;
                     break;
                     
                 case 'text':
-                    if (content.trim()) {
-                        pdf.setTextColor(255, 255, 255);
-                        pdf.setFontSize(16);
-                        pdf.setFont('helvetica', 'normal');
-                        pdf.text(content, 30, yPos, { maxWidth: 240 });
-                        yPos += 20;
-                    }
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(18);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text(textContent, 30, yPos, { maxWidth: 240 });
+                    yPos += 25;
                     break;
             }
         });
@@ -456,12 +454,13 @@ class MarpExporter {
         
         lines.forEach(line => {
             const { type, content } = this.parseLineType(line);
+            const textContent = String(content || '').trim();
             
-            if (type === 'h1') {
+            if (type === 'h1' && textContent) {
                 pdf.setTextColor(255, 255, 255);
-                pdf.setFontSize(36);
+                pdf.setFontSize(40);
                 pdf.setFont('helvetica', 'bold');
-                pdf.text(content, width/2, height/2, { 
+                pdf.text(textContent, width/2, height/2, { 
                     align: 'center',
                     maxWidth: 240 
                 });
@@ -471,64 +470,64 @@ class MarpExporter {
 
     drawContentSlide(pdf, slideData, index, width, height) {
         const lines = this.parseMarkdownLines(slideData.markdown);
-        let yPos = 40;
+        let yPos = 50; // Empezar más abajo para evitar la línea decorativa
         
         lines.forEach(line => {
             const { type, content } = this.parseLineType(line);
+            const textContent = String(content || '').trim();
+            if (!textContent) return;
             
             switch (type) {
                 case 'h1':
                     pdf.setTextColor(231, 40, 135);
-                    pdf.setFontSize(24);
+                    pdf.setFontSize(28);
                     pdf.setFont('helvetica', 'bold');
-                    pdf.text(content, 25, yPos, { maxWidth: 250 });
-                    yPos += 25;
+                    pdf.text(textContent, 25, yPos, { maxWidth: 250 });
+                    yPos += 30;
                     break;
                     
                 case 'h2':
                     pdf.setTextColor(0, 32, 96);
-                    pdf.setFontSize(18);
+                    pdf.setFontSize(22);
                     pdf.setFont('helvetica', 'bold');
-                    pdf.text(content, 25, yPos, { maxWidth: 250 });
-                    yPos += 20;
+                    pdf.text(textContent, 25, yPos, { maxWidth: 250 });
+                    yPos += 25;
                     break;
                     
                 case 'h3':
                     pdf.setTextColor(231, 40, 135);
-                    pdf.setFontSize(14);
+                    pdf.setFontSize(18);
                     pdf.setFont('helvetica', 'bold');
-                    pdf.text(content, 25, yPos, { maxWidth: 250 });
-                    yPos += 15;
+                    pdf.text(textContent, 25, yPos, { maxWidth: 250 });
+                    yPos += 20;
                     break;
                     
                 case 'list':
                     pdf.setTextColor(51, 51, 51);
-                    pdf.setFontSize(12);
+                    pdf.setFontSize(14);
                     pdf.setFont('helvetica', 'normal');
-                    pdf.text(content, 35, yPos, { maxWidth: 240 });
-                    yPos += 12;
+                    pdf.text(textContent, 35, yPos, { maxWidth: 240 });
+                    yPos += 15;
                     break;
                     
                 case 'text':
-                    if (content.trim()) {
-                        pdf.setTextColor(51, 51, 51);
-                        pdf.setFontSize(12);
-                        pdf.setFont('helvetica', 'normal');
-                        pdf.text(content, 25, yPos, { maxWidth: 250 });
-                        yPos += 15;
-                    }
+                    pdf.setTextColor(51, 51, 51);
+                    pdf.setFontSize(14);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text(textContent, 25, yPos, { maxWidth: 250 });
+                    yPos += 18;
                     break;
             }
             
-            if (yPos > 160) return; // Evitar overflow
+            if (yPos > 150) return; // Evitar overflow
         });
 
-        // Numeración
-        if (slideData.directives.paginate) {
+        // Numeración en posición correcta
+        if (slideData.directives && slideData.directives.paginate) {
             pdf.setTextColor(117, 112, 112);
-            pdf.setFontSize(10);
+            pdf.setFontSize(12);
             pdf.setFont('helvetica', 'normal');
-            pdf.text((index + 1).toString(), 25, 190);
+            pdf.text(String(index + 1), 25, 190);
         }
     }
 
@@ -543,17 +542,25 @@ class MarpExporter {
         const trimmed = line.trim();
         
         if (trimmed.startsWith('# ')) {
-            return { type: 'h1', content: trimmed.substring(2) };
+            return { type: 'h1', content: trimmed.substring(2).trim() };
         } else if (trimmed.startsWith('## ')) {
-            return { type: 'h2', content: trimmed.substring(3) };
+            return { type: 'h2', content: trimmed.substring(3).trim() };
         } else if (trimmed.startsWith('### ')) {
-            return { type: 'h3', content: trimmed.substring(4) };
+            return { type: 'h3', content: trimmed.substring(4).trim() };
         } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-            return { type: 'list', content: '• ' + trimmed.substring(2) };
+            return { type: 'list', content: '• ' + trimmed.substring(2).trim() };
         } else if (trimmed.match(/^\d+\. /)) {
             return { type: 'list', content: trimmed };
-        } else {
+        } else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
+            // Texto en negrita
+            return { type: 'text', content: trimmed.slice(2, -2) };
+        } else if (trimmed.startsWith('*') && trimmed.endsWith('*')) {
+            // Texto en cursiva
+            return { type: 'text', content: trimmed.slice(1, -1) };
+        } else if (trimmed.length > 0 && !trimmed.startsWith('<!--') && !trimmed.startsWith('---')) {
             return { type: 'text', content: trimmed };
+        } else {
+            return { type: 'text', content: '' };
         }
     }
 
