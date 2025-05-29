@@ -333,6 +333,8 @@ class MarpExporter {
         const isTitle = slideData.classes.includes('title-slide');
         const isSection = slideData.classes.includes('section-slide');
         
+        console.log(`Slide ${index}: isTitle=${isTitle}, isSection=${isSection}, classes=${slideData.classes}`);
+        
         if (theme === 'cenia') {
             // Aplicar background
             if (isTitle) {
@@ -345,39 +347,71 @@ class MarpExporter {
                 this.drawContentBackground(pdf, width, height);
                 this.drawContentSlide(pdf, slideData, index, width, height);
             }
+        } else {
+            // Fallback para otros temas
+            this.drawContentBackground(pdf, width, height);
+            this.drawContentSlide(pdf, slideData, index, width, height);
         }
     }
 
     drawTitleBackground(pdf, width, height) {
-        // Fondo azul
-        pdf.setFillColor(0, 32, 96);
+        // Fondo azul oscuro para slides de título
+        pdf.setFillColor(0, 32, 96); // Color CENIA azul oscuro
         pdf.rect(0, 0, width, height, 'F');
+        
+        // Agregar un patrón sutil (opcional)
+        pdf.setFillColor(10, 14, 80); // Azul más oscuro para patrón
+        for (let i = 0; i < width; i += 40) {
+            for (let j = 0; j < height; j += 40) {
+                pdf.circle(i, j, 1, 'F');
+            }
+        }
     }
 
     drawSectionBackground(pdf, width, height) {
-        // Fondo rosa
-        pdf.setFillColor(231, 40, 135);
+        // Fondo rosa para slides de sección
+        pdf.setFillColor(231, 40, 135); // Color CENIA rosa
         pdf.rect(0, 0, width, height, 'F');
+        
+        // Degradado simulado con rectángulos
+        for (let i = 0; i < height; i += 2) {
+            const opacity = i / height;
+            const r = 231 + (235 - 231) * opacity;
+            const g = 40 + (119 - 40) * opacity;
+            const b = 135 + (177 - 135) * opacity;
+            pdf.setFillColor(r, g, b);
+            pdf.rect(0, i, width, 2, 'F');
+        }
     }
 
     drawContentBackground(pdf, width, height) {
-        // Fondo gris claro
-        pdf.setFillColor(245, 245, 245);
+        // Fondo gris claro para slides de contenido
+        pdf.setFillColor(245, 245, 245); // Gris claro CENIA
         pdf.rect(0, 0, width, height, 'F');
         
-        // Línea superior decorativa (degradado simulado)
-        pdf.setFillColor(231, 40, 135);
-        pdf.rect(0, 0, width/2, 3, 'F');
-        pdf.setFillColor(0, 32, 96);
-        pdf.rect(width/2, 0, width/2, 3, 'F');
+        // Línea superior decorativa más prominente
+        pdf.setFillColor(231, 40, 135); // Rosa CENIA
+        pdf.rect(0, 0, width/2, 6, 'F');
+        pdf.setFillColor(0, 32, 96); // Azul CENIA
+        pdf.rect(width/2, 0, width/2, 6, 'F');
         
-        // Logo CENIA
+        // Logo CENIA más grande y visible
         pdf.setFillColor(231, 40, 135);
-        pdf.roundedRect(250, 170, 30, 20, 3, 3, 'F');
+        pdf.roundedRect(240, 160, 40, 25, 4, 4, 'F');
         pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(10);
+        pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
-        pdf.text('CENIA', 265, 182, { align: 'center' });
+        pdf.text('CENIA', 260, 175, { align: 'center' });
+        
+        // Agregar patrón de puntos sutil
+        pdf.setFillColor(200, 200, 200);
+        for (let i = 30; i < width - 30; i += 25) {
+            for (let j = 30; j < height - 30; j += 25) {
+                if (Math.random() > 0.7) { // Solo algunos puntos
+                    pdf.circle(i, j, 0.5, 'F');
+                }
+            }
+        }
     }
 
     drawTitleContent(pdf, slideData, width, height) {
@@ -538,7 +572,25 @@ class MarpExporter {
 
     async loadPPTXLibrary() {
         if (!window.PptxGenJS) {
-            await this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.min.js');
+            // Probar varias versiones de PptxGenJS
+            const urls = [
+                'https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.min.js',
+                'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.11.0/pptxgen.bundle.min.js'
+            ];
+            
+            for (const url of urls) {
+                try {
+                    await this.loadScript(url);
+                    if (window.PptxGenJS) break;
+                } catch (e) {
+                    console.warn(`Failed to load from ${url}`);
+                }
+            }
+            
+            if (!window.PptxGenJS) {
+                throw new Error('No se pudo cargar la librería PptxGenJS');
+            }
         }
     }
 
