@@ -334,18 +334,17 @@ class CeniaMarpEditor {
     }
 
     // ============================================
-    // FULLSCREEN FUNCTIONALITY - LUGAR CORRECTO
+    // FULLSCREEN FUNCTIONALITY - ARREGLADO PARA TODO EL VIEWPORT
     // ============================================
     toggleFullscreen() {
         if (!document.fullscreenElement) {
-            // Entrar en fullscreen
-            const previewContainer = document.querySelector('.preview-container');
-            if (previewContainer.requestFullscreen) {
-                previewContainer.requestFullscreen();
-            } else if (previewContainer.webkitRequestFullscreen) {
-                previewContainer.webkitRequestFullscreen();
-            } else if (previewContainer.msRequestFullscreen) {
-                previewContainer.msRequestFullscreen();
+            // Entrar en fullscreen - usar todo el documento
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
             }
             
             // Ajustar estilos para fullscreen
@@ -377,53 +376,93 @@ class CeniaMarpEditor {
     adjustFullscreenStyles(isFullscreen) {
         const slidesContainer = document.getElementById('slides-container');
         const slides = slidesContainer.querySelectorAll('.slide');
+        const appContainer = document.querySelector('.app-container');
         
         if (isFullscreen) {
             // Calcular el zoom apropiado para fullscreen
-            const containerWidth = window.innerWidth * 0.9; // 90% del ancho de pantalla
-            const containerHeight = window.innerHeight * 0.9; // 90% del alto de pantalla
+            const containerWidth = window.innerWidth * 0.95; // 95% del ancho de pantalla
+            const containerHeight = window.innerHeight * 0.95; // 95% del alto de pantalla
             const slideWidth = 960; // Ancho original del slide
             const slideHeight = 540; // Alto original del slide
             
             // Calcular escalas para mantener aspecto y que quepa en pantalla
             const scaleX = containerWidth / slideWidth;
             const scaleY = containerHeight / slideHeight;
-            const fullscreenScale = Math.min(scaleX, scaleY, 2.0); // Máximo 200%
+            const fullscreenScale = Math.min(scaleX, scaleY, 2.5); // Máximo 250%
             
             console.log(`Fullscreen scale calculated: ${fullscreenScale}`);
             
-            // Aplicar estilos para fullscreen
-            slidesContainer.style.position = 'fixed';
-            slidesContainer.style.top = '50%';
-            slidesContainer.style.left = '50%';
-            slidesContainer.style.transform = 'translate(-50%, -50%)';
-            slidesContainer.style.zIndex = '9999';
-            slidesContainer.style.background = '#f8f9fa';
-            slidesContainer.style.padding = '20px';
-            slidesContainer.style.borderRadius = '8px';
+            // Ocultar toda la interfaz
+            appContainer.style.display = 'none';
             
-            slides.forEach(slide => {
-                slide.style.transform = `scale(${fullscreenScale})`;
-                slide.style.transformOrigin = 'center center';
-                slide.style.width = '960px';
-                slide.style.height = '540px';
-                slide.style.margin = 'auto';
-                slide.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
-            });
+            // Crear overlay fullscreen
+            const fullscreenOverlay = document.createElement('div');
+            fullscreenOverlay.id = 'fullscreen-overlay';
+            fullscreenOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: #000;
+                z-index: 99999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+            `;
+            
+            // Clonar el slide activo
+            const activeSlide = slidesContainer.querySelector('.slide.active');
+            if (activeSlide) {
+                const slideClone = activeSlide.cloneNode(true);
+                slideClone.style.cssText = `
+                    width: 960px;
+                    height: 540px;
+                    transform: scale(${fullscreenScale});
+                    transform-origin: center center;
+                    box-shadow: 0 8px 32px rgba(255,255,255,0.2);
+                    border-radius: 8px;
+                    overflow: hidden;
+                `;
+                
+                fullscreenOverlay.appendChild(slideClone);
+            }
+            
+            // Agregar instrucciones
+            const instructions = document.createElement('div');
+            instructions.style.cssText = `
+                position: absolute;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: rgba(255,255,255,0.7);
+                font-size: 14px;
+                text-align: center;
+            `;
+            instructions.innerHTML = `
+                <div>Presiona ESC o haz clic para salir | ← → para navegar</div>
+            `;
+            fullscreenOverlay.appendChild(instructions);
+            
+            // Agregar al documento
+            document.body.appendChild(fullscreenOverlay);
+            
+            // Event listeners para navegación en fullscreen
+            this.setupFullscreenNavigation(fullscreenOverlay);
             
         } else {
             // Restaurar estilos normales
-            slidesContainer.style.position = '';
-            slidesContainer.style.top = '';
-            slidesContainer.style.left = '';
-            slidesContainer.style.transform = '';
-            slidesContainer.style.zIndex = '';
-            slidesContainer.style.background = '';
-            slidesContainer.style.padding = '';
-            slidesContainer.style.borderRadius = '';
+            const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+            if (fullscreenOverlay) {
+                fullscreenOverlay.remove();
+            }
             
+            // Mostrar interfaz nuevamente
+            appContainer.style.display = '';
+            
+            // Restaurar slides normales
             slides.forEach(slide => {
-                // Restaurar el zoom que tenía antes del fullscreen
                 slide.style.transform = `scale(${this.zoomLevel / 100})`;
                 slide.style.transformOrigin = 'top left';
                 slide.style.width = '960px';
@@ -431,6 +470,64 @@ class CeniaMarpEditor {
                 slide.style.margin = '';
                 slide.style.boxShadow = '';
             });
+        }
+    }
+
+    setupFullscreenNavigation(overlay) {
+        const handleFullscreenKeyDown = (e) => {
+            switch (e.key) {
+                case 'Escape':
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    this.previousSlide();
+                    this.updateFullscreenSlide(overlay);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    this.nextSlide();
+                    this.updateFullscreenSlide(overlay);
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    this.goToSlide(0);
+                    this.updateFullscreenSlide(overlay);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    this.goToSlide(this.slides.length - 1);
+                    this.updateFullscreenSlide(overlay);
+                    break;
+            }
+        };
+
+        const handleFullscreenClick = (e) => {
+            if (e.target === overlay) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        };
+
+        document.addEventListener('keydown', handleFullscreenKeyDown);
+        overlay.addEventListener('click', handleFullscreenClick);
+
+        // Limpiar listeners cuando se cierre fullscreen
+        overlay.addEventListener('remove', () => {
+            document.removeEventListener('keydown', handleFullscreenKeyDown);
+        });
+    }
+
+    updateFullscreenSlide(overlay) {
+        const slideContainer = overlay.querySelector('.slide');
+        const activeSlide = this.slidesContainer.querySelector('.slide.active');
+        
+        if (slideContainer && activeSlide) {
+            slideContainer.innerHTML = activeSlide.innerHTML;
+            slideContainer.className = activeSlide.className;
         }
     }
 
