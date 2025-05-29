@@ -325,74 +325,302 @@ class MarpExporter {
     }
 
     // ============================================
-    // NUEVA FUNCIÓN: AGREGAR CONTENIDO MARKDOWN A PPTX
+    // NUEVA FUNCIÓN: AGREGAR CONTENIDO MARKDOWN A PPTX (MEJORADA)
     // ============================================
     addPPTXTextContent(slide, slideData, isTitle, isSection, slideIndex) {
         console.log(`\n--- Procesando contenido slide ${slideIndex + 1} ---`);
         
-        const lines = this.parseMarkdownLines(slideData.markdown);
-        console.log('Lines to process:', lines);
+        const markdown = slideData.markdown;
+        console.log('Full markdown:', markdown);
         
-        let currentY = isTitle || isSection ? 1.5 : 1.0; // Posición Y inicial
-        const leftMargin = isTitle || isSection ? 1.0 : 0.8;
-        const maxWidth = 11.5; // Ancho máximo del texto
+        // Detectar si hay tablas
+        if (markdown.includes('|') && markdown.includes('---')) {
+            this.addPPTXTableContent(slide, slideData, isTitle, isSection, slideIndex);
+            return;
+        }
         
-        lines.forEach((line, lineIndex) => {
-            const { type, content } = this.parseLineType(line);
-            const textContent = String(content || '').trim();
+        // Procesar contenido agrupado por secciones
+        const sections = this.groupContentIntoSections(markdown);
+        console.log('Sections to process:', sections);
+        
+        let currentY = isTitle || isSection ? 1.8 : 1.2;
+        const leftMargin = isTitle || isSection ? 1.2 : 1.0;
+        const maxWidth = 11.0;
+        
+        sections.forEach((section, sectionIndex) => {
+            console.log(`Processing section ${sectionIndex}:`, section);
             
-            console.log(`Line ${lineIndex}: type="${type}", content="${textContent}"`);
-            
-            if (!textContent) return; // Saltar líneas vacías
-            
-            // Configuración de estilos según tipo de slide y elemento
-            let textOptions = this.getPPTXTextStyle(type, isTitle, isSection);
-            
-            // Posición y tamaño del texto
-            textOptions.x = leftMargin;
-            textOptions.y = currentY;
-            textOptions.w = maxWidth;
-            textOptions.h = textOptions.fontSize ? (textOptions.fontSize / 72) * 1.5 : 0.8; // Auto height
-            
-            // Ajustes especiales para slides de sección (centrados)
-            if (isSection && type === 'h1') {
-                textOptions.x = 0;
-                textOptions.y = 3.0; // Centro vertical
-                textOptions.w = 13.33; // Todo el ancho
-                textOptions.align = 'center';
-                textOptions.valign = 'middle';
-                textOptions.fontSize = 48;
+            if (section.type === 'title') {
+                // Títulos individuales
+                const textOptions = this.getPPTXTextStyle('h1', isTitle, isSection);
+                textOptions.x = leftMargin;
+                textOptions.y = currentY;
+                textOptions.w = maxWidth;
+                textOptions.h = 1.0;
+                
+                if (isSection) {
+                    textOptions.x = 0;
+                    textOptions.y = 3.2;
+                    textOptions.w = 13.33;
+                    textOptions.align = 'center';
+                    textOptions.valign = 'middle';
+                    textOptions.fontSize = 54;
+                }
+                
+                slide.addText(section.content, textOptions);
+                currentY += this.getPPTXLineHeight('h1', textOptions.fontSize);
+                
+            } else if (section.type === 'subtitle') {
+                // Subtítulos individuales
+                const textOptions = this.getPPTXTextStyle('h2', isTitle, isSection);
+                textOptions.x = leftMargin;
+                textOptions.y = currentY;
+                textOptions.w = maxWidth;
+                textOptions.h = 0.8;
+                
+                slide.addText(section.content, textOptions);
+                currentY += this.getPPTXLineHeight('h2', textOptions.fontSize);
+                
+            } else if (section.type === 'list') {
+                // Listas como un solo bloque de texto
+                const listText = section.items.map(item => `• ${item}`).join('\n');
+                const textOptions = this.getPPTXTextStyle('list', isTitle, isSection);
+                textOptions.x = leftMargin + 0.3;
+                textOptions.y = currentY;
+                textOptions.w = maxWidth - 0.3;
+                textOptions.h = section.items.length * 0.4; // Altura proporcional
+                
+                slide.addText(listText, textOptions);
+                currentY += section.items.length * 0.5;
+                
+            } else if (section.type === 'text') {
+                // Párrafos agrupados
+                const textOptions = this.getPPTXTextStyle('text', isTitle, isSection);
+                textOptions.x = leftMargin;
+                textOptions.y = currentY;
+                textOptions.w = maxWidth;
+                textOptions.h = 0.8;
+                
+                slide.addText(section.content, textOptions);
+                currentY += this.getPPTXLineHeight('text', textOptions.fontSize);
             }
             
-            console.log(`Adding text: "${textContent}" with options:`, textOptions);
-            
-            // Agregar el texto al slide
-            slide.addText(textContent, textOptions);
-            
-            // Incrementar posición Y para siguiente elemento
-            currentY += this.getPPTXLineHeight(type, textOptions.fontSize);
-            
-            // Evitar overflow vertical
-            if (currentY > 6.5) {
-                console.log('Reached bottom of slide, stopping text addition');
-                return;
-            }
+            // Evitar overflow
+            if (currentY > 6.2) return;
         });
         
         // Agregar numeración si está habilitada
         if (slideData.directives && slideData.directives.paginate && !isTitle && !isSection) {
             slide.addText(String(slideIndex + 1), {
-                x: 0.5, y: 6.8, w: 1, h: 0.4,
-                fontSize: 12,
-                color: '757070', // gris CENIA
+                x: 0.8, y: 6.8, w: 1, h: 0.4,
+                fontSize: 14,
+                color: '757070',
                 fontFace: 'Arial'
             });
-            console.log(`Added pagination: ${slideIndex + 1}`);
         }
     }
 
     // ============================================
-    // ESTILOS PARA DIFERENTES TIPOS DE CONTENIDO
+    // AGRUPAR CONTENIDO EN SECCIONES LÓGICAS
+    // ============================================
+    groupContentIntoSections(markdown) {
+        const lines = this.parseMarkdownLines(markdown);
+        const sections = [];
+        let currentSection = null;
+        
+        lines.forEach(line => {
+            const { type, content } = this.parseLineType(line);
+            
+            if (type === 'h1') {
+                if (currentSection) sections.push(currentSection);
+                currentSection = { type: 'title', content: content };
+                
+            } else if (type === 'h2') {
+                if (currentSection) sections.push(currentSection);
+                currentSection = { type: 'subtitle', content: content };
+                
+            } else if (type === 'list') {
+                if (!currentSection || currentSection.type !== 'list') {
+                    if (currentSection) sections.push(currentSection);
+                    currentSection = { type: 'list', items: [] };
+                }
+                currentSection.items.push(content);
+                
+            } else if (type === 'text' && content.trim()) {
+                if (!currentSection || currentSection.type !== 'text') {
+                    if (currentSection) sections.push(currentSection);
+                    currentSection = { type: 'text', content: content };
+                } else {
+                    currentSection.content += '\n' + content;
+                }
+            }
+        });
+        
+        if (currentSection) sections.push(currentSection);
+        return sections;
+    }
+
+    // ============================================
+    // NUEVA FUNCIÓN: MANEJAR TABLAS EN PPTX
+    // ============================================
+    addPPTXTableContent(slide, slideData, isTitle, isSection, slideIndex) {
+        console.log('Processing slide with table...');
+        
+        const lines = slideData.markdown.split('\n');
+        let currentY = 1.2;
+        const leftMargin = 1.0;
+        
+        let tableData = [];
+        let isInTable = false;
+        let headerProcessed = false;
+        
+        lines.forEach((line, lineIndex) => {
+            const trimmed = line.trim();
+            
+            // Procesar títulos y subtítulos antes de la tabla
+            if (trimmed.startsWith('#') && !isInTable) {
+                const { type, content } = this.parseLineType(trimmed);
+                const textOptions = this.getPPTXTextStyle(type, isTitle, isSection);
+                
+                textOptions.x = leftMargin;
+                textOptions.y = currentY;
+                textOptions.w = 11.0;
+                textOptions.h = 1.0;
+                
+                slide.addText(content, textOptions);
+                currentY += this.getPPTXLineHeight(type, textOptions.fontSize);
+                return;
+            }
+            
+            // Detectar inicio de tabla
+            if (trimmed.includes('|') && !trimmed.includes('---')) {
+                isInTable = true;
+                const cells = trimmed.split('|').map(cell => cell.trim()).filter(cell => cell);
+                tableData.push(cells);
+                return;
+            }
+            
+            // Saltar línea separadora de tabla
+            if (trimmed.includes('---')) {
+                headerProcessed = true;
+                return;
+            }
+            
+            // Procesar contenido después de la tabla
+            if (isInTable && !trimmed.includes('|')) {
+                isInTable = false;
+                // Renderizar la tabla
+                this.renderPPTXTable(slide, tableData, leftMargin, currentY);
+                currentY += (tableData.length * 0.5) + 1.0; // Espacio para la tabla
+                tableData = []; // Reset
+                
+                // Procesar línea actual si no está vacía
+                if (trimmed) {
+                    const { type, content } = this.parseLineType(trimmed);
+                    const textOptions = this.getPPTXTextStyle(type, isTitle, isSection);
+                    
+                    textOptions.x = leftMargin;
+                    textOptions.y = currentY;
+                    textOptions.w = 11.0;
+                    textOptions.h = 0.8;
+                    
+                    slide.addText(content, textOptions);
+                    currentY += this.getPPTXLineHeight(type, textOptions.fontSize);
+                }
+            }
+        });
+        
+        // Renderizar tabla final si la hay
+        if (tableData.length > 0) {
+            this.renderPPTXTable(slide, tableData, leftMargin, currentY);
+        }
+        
+        // Numeración
+        if (slideData.directives && slideData.directives.paginate && !isTitle && !isSection) {
+            slide.addText(String(slideIndex + 1), {
+                x: 0.8, y: 6.8, w: 1, h: 0.4,
+                fontSize: 14,
+                color: '757070',
+                fontFace: 'Arial'
+            });
+        }
+    }
+
+    // ============================================
+    // RENDERIZAR TABLA EN PPTX (MEJORADA)
+    // ============================================
+    renderPPTXTable(slide, tableData, x, y) {
+        if (tableData.length === 0) return;
+        
+        const colCount = Math.max(...tableData.map(row => row.length));
+        const tableWidth = 9.0; // Ancho total de la tabla
+        const colWidth = tableWidth / colCount;
+        const rowHeight = 0.5;
+        
+        console.log(`Rendering table: ${tableData.length} rows, ${colCount} cols`);
+        
+        // Crear tabla usando un enfoque más simple - una sola shape para toda la tabla
+        const tableRows = [];
+        
+        tableData.forEach((row, rowIndex) => {
+            const tableRow = [];
+            row.forEach((cell, colIndex) => {
+                tableRow.push({
+                    text: cell,
+                    options: {
+                        fontSize: rowIndex === 0 ? 16 : 14,
+                        bold: rowIndex === 0,
+                        color: rowIndex === 0 ? 'FFFFFF' : '333333',
+                        fill: rowIndex === 0 ? { color: 'e72887' } : 
+                              rowIndex % 2 === 1 ? { color: 'f8f9fa' } : { color: 'FFFFFF' },
+                        align: 'center',
+                        valign: 'middle'
+                    }
+                });
+            });
+            tableRows.push(tableRow);
+        });
+        
+        // Usar addTable si está disponible, sino fallback a celdas individuales
+        try {
+            slide.addTable(tableRows, {
+                x: x,
+                y: y,
+                w: tableWidth,
+                colW: Array(colCount).fill(colWidth),
+                border: { pt: 1, color: 'e0e0e0' },
+                fill: { color: 'FFFFFF' }
+            });
+        } catch (e) {
+            console.log('addTable no disponible, usando celdas individuales');
+            // Fallback: celdas individuales
+            tableData.forEach((row, rowIndex) => {
+                row.forEach((cell, colIndex) => {
+                    const cellX = x + (colIndex * colWidth);
+                    const cellY = y + (rowIndex * rowHeight);
+                    const isHeader = rowIndex === 0;
+                    
+                    slide.addText(cell, {
+                        x: cellX,
+                        y: cellY,
+                        w: colWidth - 0.05,
+                        h: rowHeight,
+                        fontSize: isHeader ? 16 : 14,
+                        bold: isHeader,
+                        color: isHeader ? 'FFFFFF' : '333333',
+                        fill: isHeader ? 'e72887' : (rowIndex % 2 === 1 ? 'f8f9fa' : 'FFFFFF'),
+                        align: 'center',
+                        valign: 'middle',
+                        fontFace: 'Arial',
+                        border: { pt: 1, color: 'e0e0e0' }
+                    });
+                });
+            });
+        }
+    }
+
+    // ============================================
+    // ESTILOS PARA DIFERENTES TIPOS DE CONTENIDO (MEJORADOS)
     // ============================================
     getPPTXTextStyle(type, isTitle, isSection) {
         // Colores según tipo de slide
@@ -403,7 +631,7 @@ class MarpExporter {
         switch (type) {
             case 'h1':
                 return {
-                    fontSize: isTitle ? 44 : isSection ? 48 : 32,
+                    fontSize: isTitle ? 48 : isSection ? 54 : 36, // Más grandes
                     bold: true,
                     color: titleColor,
                     fontFace: 'Arial'
@@ -411,7 +639,7 @@ class MarpExporter {
                 
             case 'h2':
                 return {
-                    fontSize: isTitle ? 32 : 28,
+                    fontSize: isTitle ? 36 : 32, // Más grandes
                     bold: true,
                     color: subtitleColor,
                     fontFace: 'Arial'
@@ -419,7 +647,7 @@ class MarpExporter {
                 
             case 'h3':
                 return {
-                    fontSize: isTitle ? 24 : 20,
+                    fontSize: isTitle ? 28 : 24, // Más grandes
                     bold: true,
                     color: titleColor,
                     fontFace: 'Arial'
@@ -427,16 +655,20 @@ class MarpExporter {
                 
             case 'list':
                 return {
-                    fontSize: 18,
+                    fontSize: 20, // Más grande
                     color: textColor,
                     fontFace: 'Arial',
-                    bullet: { type: 'bullet' }
+                    bullet: { 
+                        type: 'bullet',
+                        style: '•',
+                        color: 'e72887' // Rosa CENIA para bullets
+                    }
                 };
                 
             case 'text':
             default:
                 return {
-                    fontSize: isTitle ? 20 : 16,
+                    fontSize: isTitle ? 24 : 18, // Más grandes
                     color: textColor,
                     fontFace: 'Arial'
                 };
@@ -444,23 +676,23 @@ class MarpExporter {
     }
 
     // ============================================
-    // CALCULAR ALTURA DE LÍNEA PARA ESPACIADO
+    // CALCULAR ALTURA DE LÍNEA PARA ESPACIADO (MEJORADO)
     // ============================================
     getPPTXLineHeight(type, fontSize) {
-        const baseHeight = (fontSize || 16) / 72; // Convertir pt a inches
+        const baseHeight = (fontSize || 18) / 72; // Convertir pt a inches
         
         switch (type) {
             case 'h1':
-                return baseHeight * 1.8; // Más espacio después de títulos
+                return baseHeight * 2.2; // Más espacio después de títulos
             case 'h2':
-                return baseHeight * 1.6;
+                return baseHeight * 2.0;
             case 'h3':
-                return baseHeight * 1.4;
+                return baseHeight * 1.8;
             case 'list':
-                return baseHeight * 1.3;
+                return baseHeight * 1.6; // Más espacio entre items
             case 'text':
             default:
-                return baseHeight * 1.4;
+                return baseHeight * 1.6;
         }
     }
 
