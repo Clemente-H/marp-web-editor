@@ -1,4 +1,4 @@
-// Exportador CENIA Marp Editor - PPTX con contenido real del markdown
+// Exportador CENIA Marp Editor - Solo backgrounds
 class MarpExporter {
     constructor() {
         this.defaultCSS = '';
@@ -238,7 +238,7 @@ class MarpExporter {
     }
 
     // ============================================
-    // EXPORT PPTX - AHORA CON CONTENIDO REAL DEL MARKDOWN
+    // EXPORT PPTX - Con contenido real del markdown
     // ============================================
     async exportPPTX(slides, theme, filename) {
         try {
@@ -306,7 +306,7 @@ class MarpExporter {
                     }
                 }
                 
-                // ✅ AGREGAR CONTENIDO REAL DEL MARKDOWN
+                // Agregar contenido real del markdown
                 this.addPPTXTextContent(slide, slideData, isTitle, isSection, i);
                 
                 this.updateLoadingMessage(`Creando slide ${i + 1}/${slides.length}...`);
@@ -325,7 +325,7 @@ class MarpExporter {
     }
 
     // ============================================
-    // NUEVA FUNCIÓN: AGREGAR CONTENIDO MARKDOWN A PPTX (MEJORADA)
+    // AGREGAR CONTENIDO MARKDOWN A PPTX
     // ============================================
     addPPTXTextContent(slide, slideData, isTitle, isSection, slideIndex) {
         console.log(`\n--- Procesando contenido slide ${slideIndex + 1} ---`);
@@ -461,7 +461,7 @@ class MarpExporter {
     }
 
     // ============================================
-    // NUEVA FUNCIÓN: MANEJAR TABLAS EN PPTX
+    // MANEJAR TABLAS EN PPTX
     // ============================================
     addPPTXTableContent(slide, slideData, isTitle, isSection, slideIndex) {
         console.log('Processing slide with table...');
@@ -547,7 +547,7 @@ class MarpExporter {
     }
 
     // ============================================
-    // RENDERIZAR TABLA EN PPTX (MEJORADA)
+    // RENDERIZAR TABLA EN PPTX
     // ============================================
     renderPPTXTable(slide, tableData, x, y) {
         if (tableData.length === 0) return;
@@ -620,7 +620,7 @@ class MarpExporter {
     }
 
     // ============================================
-    // ESTILOS PARA DIFERENTES TIPOS DE CONTENIDO (MEJORADOS)
+    // ESTILOS PARA DIFERENTES TIPOS DE CONTENIDO
     // ============================================
     getPPTXTextStyle(type, isTitle, isSection) {
         // Colores según tipo de slide
@@ -631,7 +631,7 @@ class MarpExporter {
         switch (type) {
             case 'h1':
                 return {
-                    fontSize: isTitle ? 48 : isSection ? 54 : 36, // Más grandes
+                    fontSize: isTitle ? 48 : isSection ? 54 : 36,
                     bold: true,
                     color: titleColor,
                     fontFace: 'Arial'
@@ -639,7 +639,7 @@ class MarpExporter {
                 
             case 'h2':
                 return {
-                    fontSize: isTitle ? 36 : 32, // Más grandes
+                    fontSize: isTitle ? 36 : 32,
                     bold: true,
                     color: subtitleColor,
                     fontFace: 'Arial'
@@ -647,7 +647,7 @@ class MarpExporter {
                 
             case 'h3':
                 return {
-                    fontSize: isTitle ? 28 : 24, // Más grandes
+                    fontSize: isTitle ? 28 : 24,
                     bold: true,
                     color: titleColor,
                     fontFace: 'Arial'
@@ -655,7 +655,7 @@ class MarpExporter {
                 
             case 'list':
                 return {
-                    fontSize: 20, // Más grande
+                    fontSize: 20,
                     color: textColor,
                     fontFace: 'Arial',
                     bullet: { 
@@ -668,7 +668,7 @@ class MarpExporter {
             case 'text':
             default:
                 return {
-                    fontSize: isTitle ? 24 : 18, // Más grandes
+                    fontSize: isTitle ? 24 : 18,
                     color: textColor,
                     fontFace: 'Arial'
                 };
@@ -676,20 +676,20 @@ class MarpExporter {
     }
 
     // ============================================
-    // CALCULAR ALTURA DE LÍNEA PARA ESPACIADO (MEJORADO)
+    // CALCULAR ALTURA DE LÍNEA PARA ESPACIADO
     // ============================================
     getPPTXLineHeight(type, fontSize) {
         const baseHeight = (fontSize || 18) / 72; // Convertir pt a inches
         
         switch (type) {
             case 'h1':
-                return baseHeight * 2.2; // Más espacio después de títulos
+                return baseHeight * 2.2;
             case 'h2':
                 return baseHeight * 2.0;
             case 'h3':
                 return baseHeight * 1.8;
             case 'list':
-                return baseHeight * 1.6; // Más espacio entre items
+                return baseHeight * 1.6;
             case 'text':
             default:
                 return baseHeight * 1.6;

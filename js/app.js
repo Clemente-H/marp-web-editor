@@ -7,7 +7,7 @@ class CeniaMarpEditor {
         this.currentTheme = 'cenia';
         this.isUnsaved = false;
         this.filename = 'Presentación Sin Título';
-        this.isFullscreen = false; // Track fullscreen state
+        this.isFullscreen = false;
         
         this.init();
     }
@@ -378,7 +378,7 @@ class CeniaMarpEditor {
     }
 
     // ============================================
-    // FULLSCREEN FUNCTIONALITY - COMPLETAMENTE REDISEÑADO
+    // FULLSCREEN FUNCTIONALITY
     // ============================================
     toggleFullscreen() {
         if (this.isFullscreen) {
@@ -693,12 +693,37 @@ Subtitle aquí
         this.helpModal.classList.add('hidden');
     }
 
-    insertTemplate(templateType) {
+    async insertTemplate(templateType) {
+        try {
+            // Cargar template desde archivo
+            const templateFile = `templates/cenia-${templateType}.md`;
+            const response = await fetch(templateFile);
+            
+            if (response.ok) {
+                const templateContent = await response.text();
+                this.editor.value = templateContent;
+                this.markUnsaved();
+                this.updatePreview();
+                console.log(`✅ Template ${templateType} cargado desde archivo`);
+            } else {
+                // Fallback a templates embebidos
+                console.log(`⚠️ No se pudo cargar ${templateFile}, usando template embebido`);
+                this.insertEmbeddedTemplate(templateType);
+            }
+        } catch (e) {
+            console.warn('Error loading template file, using embedded:', e);
+            this.insertEmbeddedTemplate(templateType);
+        }
+    }
+
+    insertEmbeddedTemplate(templateType) {
         const templates = {
             basic: `---
 theme: cenia
 paginate: true
 ---
+
+<!-- class: title-slide -->
 
 # Presentación CENIA
 
@@ -710,26 +735,42 @@ Subtítulo de la presentación
 
 ## Agenda
 
-- Punto 1
-- Punto 2  
-- Punto 3
+- Introducción
+- Desarrollo principal  
+- Resultados
 - Conclusiones
 
 ---
 
 ## Contenido Principal
 
-### Subtitle
+### Subtítulo importante
 
-Contenido de la presentación aquí.
+Contenido de la presentación aquí. Puedes usar **texto en negrita** y *cursiva* para enfatizar puntos importantes.
 
-- Item importante
-- Otro item
-- Conclusión
+- Item relevante 1
+- Item relevante 2
+- Item relevante 3
 
 ---
 
-## Gracias
+## Resultados
+
+### Logros alcanzados
+
+- ✅ Objetivo 1 completado
+- ✅ Objetivo 2 completado
+- 🔄 Objetivo 3 en progreso
+
+### Métricas importantes
+
+Descripción de las métricas y resultados obtenidos.
+
+---
+
+<!-- class: section-slide -->
+
+# Gracias
 
 **¿Preguntas?**
 
@@ -742,61 +783,93 @@ theme: cenia
 paginate: true
 ---
 
+<!-- class: title-slide -->
+
 # Reporte Técnico
 
 **Centro Nacional de Inteligencia Artificial**
-*${new Date().toLocaleDateString()}*
+
+*Fecha: ${new Date().toLocaleDateString()}*
 
 ---
 
 ## Resumen Ejecutivo
 
-### Objetivos
-- Objetivo 1
-- Objetivo 2
+### Objetivos del Proyecto
+- Objetivo principal 1
+- Objetivo principal 2
+- Objetivo principal 3
 
 ### Resultados Clave
-- Resultado 1
-- Resultado 2
+- ✅ Resultado destacado 1
+- ✅ Resultado destacado 2
+- ✅ Resultado destacado 3
 
 ---
 
 ## Metodología
 
-### Approach
-Descripción de la metodología utilizada.
+### Enfoque Utilizado
+Descripción detallada de la metodología aplicada en el proyecto.
 
-### Herramientas
-- Tool 1
-- Tool 2
-- Tool 3
+### Herramientas y Tecnologías
+- Python y librerías de ML
+- Frameworks de Deep Learning
+- Infraestructura cloud
+- Herramientas de visualización
 
 ---
 
-## Resultados
+## Resultados Detallados
 
-### Findings
+### Hallazgos Principales
 
-Descripción de los hallazgos principales.
+Los resultados obtenidos demuestran la efectividad del enfoque propuesto.
 
-### Métricas
+### Métricas de Performance
 
-| Métrica | Valor | Status |
-|---------|-------|--------|
-| KPI 1   | 85%   | ✅      |
-| KPI 2   | 92%   | ✅      |
+| Métrica | Baseline | Nuestro Modelo | Mejora |
+|---------|----------|----------------|--------|
+| Accuracy | 75% | 92% | +17% |
+| Precision | 70% | 89% | +19% |
+| Recall | 72% | 91% | +19% |
+| F1-Score | 71% | 90% | +19% |
+
+---
+
+## Análisis de Resultados
+
+### Fortalezas del Modelo
+- Alta precisión en casos complejos
+- Robustez ante datos ruidosos
+- Escalabilidad comprobada
+
+### Áreas de Mejora
+- Optimización de tiempos de inferencia
+- Reducción de falsos positivos
+- Expansión a nuevos dominios
 
 ---
 
 ## Conclusiones y Recomendaciones
 
-### Conclusiones
-- Conclusión 1
-- Conclusión 2
+### Conclusiones Principales
+1. El modelo propuesto supera significativamente el baseline
+2. La metodología es reproducible y escalable
+3. Los resultados son consistentes across diferentes datasets
 
 ### Próximos Pasos
-- Acción 1
-- Acción 2
+- **Corto plazo:** Optimización y deployment
+- **Mediano plazo:** Extensión a casos de uso similares
+- **Largo plazo:** Investigación en nuevas arquitecturas
+
+---
+
+<!-- class: section-slide -->
+
+# Fin del Reporte
+
+**¿Preguntas y Discusión?**
 
 ---`,
 
@@ -805,68 +878,132 @@ theme: cenia
 paginate: true
 ---
 
+<!-- class: title-slide -->
+
 # Presentación Ejecutiva
 
 **Centro Nacional de Inteligencia Artificial**
+
+*Propuesta Estratégica 2024*
 
 ---
 
 ## Situación Actual
 
-### Context
-Descripción del contexto actual.
+### Contexto del Mercado
+El sector de inteligencia artificial presenta oportunidades sin precedentes para la innovación y el crecimiento.
 
-### Challenge
-- Desafío principal
-- Impacto esperado
-
----
-
-## Propuesta de Solución
-
-### Approach
-Estrategia propuesta para abordar el desafío.
-
-### Benefits
-- Beneficio 1
-- Beneficio 2
-- Beneficio 3
+### Desafío Principal
+- Necesidad de acelerar la adopción de IA
+- Brecha entre investigación y aplicación práctica
+- Competencia internacional creciente
 
 ---
 
-## Roadmap
+## Oportunidad Identificada
 
-### Fase 1: Preparación
-- Milestone 1
-- Milestone 2
+### Propuesta de Valor
+Desarrollar una solución integral que permita:
 
-### Fase 2: Implementación  
-- Milestone 3
-- Milestone 4
+- **Reducir** el time-to-market en 40%
+- **Aumentar** la eficiencia operacional
+- **Generar** nuevas fuentes de revenue
+
+### Ventaja Competitiva
+Combinación única de expertise técnico y conocimiento del dominio local.
+
+---
+
+## Estrategia Propuesta
+
+### Pilares Fundamentales
+
+1. **Innovación Tecnológica**
+   - Investigación aplicada
+   - Desarrollo de productos
+
+2. **Ecosistema Colaborativo**
+   - Partnerships estratégicos
+   - Red de colaboradores
+
+3. **Escalabilidad**
+   - Infraestructura robusta
+   - Procesos optimizados
+
+---
+
+## Roadmap de Implementación
+
+### Fase 1: Preparación (0-3 meses)
+- ✅ Definición de arquitectura
+- ✅ Formación del equipo core
+- 🔄 Setup de infraestructura inicial
+
+### Fase 2: MVP (3-6 meses)
+- Desarrollo del producto mínimo viable
+- Testing con usuarios beta
+- Iteración basada en feedback
+
+### Fase 3: Scale-up (6-12 meses)
+- Launch comercial
+- Expansión del equipo
+- Optimización de procesos
 
 ---
 
 ## Inversión y ROI
 
 ### Recursos Necesarios
-- Budget overview
-- Team requirements
 
-### Return on Investment
-- Expected benefits
-- Timeline to value
+| Categoría | Año 1 | Año 2 | Año 3 |
+|-----------|-------|-------|-------|
+| Personal | $800K | $1.2M | $1.8M |
+| Tecnología | $200K | $300K | $400K |
+| Marketing | $150K | $250K | $400K |
+| **Total** | **$1.15M** | **$1.75M** | **$2.6M** |
+
+### Retorno Esperado
+- **Break-even:** Mes 18
+- **ROI a 3 años:** 250%
+- **Revenue proyectado año 3:** $8.5M
+
+---
+
+## Factores Críticos de Éxito
+
+### Elementos Clave
+- Execution excellence del equipo
+- Timing adecuado de market entry
+- Partnerships estratégicos efectivos
+
+### Riesgos y Mitigación
+- **Riesgo técnico:** Prototyping temprano
+- **Riesgo de mercado:** Validación continua
+- **Riesgo competitivo:** Diferenciación clara
 
 ---
 
 ## Próximos Pasos
 
-### Immediate Actions
-- Acción inmediata 1
-- Acción inmediata 2
+### Decisiones Inmediatas (próximos 30 días)
+- ✅ Aprobación del presupuesto inicial
+- 🔄 Contratación del lead técnico
+- 📋 Definición de KPIs y métricas
 
-### Timeline
-**Next 30 days:** Preparación
-**Next 90 days:** Launch
+### Timeline Crítico
+- **Semana 1-2:** Kick-off del proyecto
+- **Mes 1:** Milestone 1 - Arquitectura definida
+- **Mes 3:** Milestone 2 - MVP funcional
+
+---
+
+<!-- class: section-slide -->
+
+# Call to Action
+
+**¿Aprobamos la propuesta?**
+
+*Siguiente reunión: Review de arquitectura*
 
 ---`
         };
@@ -874,6 +1011,16 @@ Estrategia propuesta para abordar el desafío.
         this.editor.value = templates[templateType] || templates.basic;
         this.markUnsaved();
         this.updatePreview();
+        console.log(`✅ Template embebido ${templateType} insertado`);
+    }
+
+    // Help modal
+    showHelpModal() {
+        this.helpModal.classList.remove('hidden');
+    }
+
+    hideHelpModal() {
+        this.helpModal.classList.add('hidden');
     }
 
     // Save state management
