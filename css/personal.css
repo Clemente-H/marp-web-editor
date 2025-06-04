@@ -1,8 +1,8 @@
-/* Template Personal */
+/* Template Personal Mejorado */
 .slide[data-theme="personal"] {
-    --personal-primary: #2563eb; /* Azul profesional */
-    --personal-secondary: #0f172a; /* Azul muy oscuro */
-    --personal-accent: #f59e0b; /* Dorado/amarillo para acentos */
+    --personal-primary: #2563eb;
+    --personal-secondary: #0f172a; 
+    --personal-accent: #f59e0b;
     --personal-gray: #64748b;
     --personal-light: #f1f5f9;
     --personal-white: #ffffff;
@@ -10,13 +10,20 @@
     
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 400;
-    background: linear-gradient(135deg, var(--personal-light) 0%, #e2e8f0 100%);
     color: var(--personal-text);
     line-height: 1.6;
     position: relative;
+    
+    /* Background con tu imagen de Google Drive */
+    background-image: 
+        linear-gradient(135deg, rgba(241,245,249,0.95) 0%, rgba(226,232,240,0.95) 100%),
+        url('https://drive.google.com/uc?export=view&id=1ZMKiqVBJfp45k-I1XfTct6pfg9EX-IF5');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-/* SLIDE DE TÍTULO */
+/* SLIDE DE TÍTULO - sin cambios */
 .slide[data-theme="personal"].title-slide {
     background: linear-gradient(135deg, var(--personal-secondary) 0%, var(--personal-primary) 100%);
     color: var(--personal-white);
@@ -49,7 +56,7 @@
     margin-bottom: 2rem;
 }
 
-/* SLIDE DE SECCIÓN */
+/* SLIDE DE SECCIÓN - sin cambios */
 .slide[data-theme="personal"].section-slide {
     background: linear-gradient(135deg, var(--personal-accent) 0%, #d97706 100%);
     color: var(--personal-white);
@@ -71,13 +78,35 @@
     padding: 70px 80px;
 }
 
-/* Tipografía */
+/* SLIDES SOLO CON TÍTULO - CENTRADOS */
+.slide[data-theme="personal"]:not(.title-slide):not(.section-slide):has(h1:only-child),
+.slide[data-theme="personal"]:not(.title-slide):not(.section-slide):has(h1 + h2:last-child),
+.slide[data-theme="personal"]:not(.title-slide):not(.section-slide):has(h1 + h2 + h3:last-child) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Fallback para navegadores que no soportan :has() */
+.slide[data-theme="personal"].center-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Tipografía mejorada */
 .slide[data-theme="personal"] h1 {
     color: var(--personal-primary);
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
     line-height: 1.2;
+    /* Mejor contraste sobre el background */
+    text-shadow: 0 2px 4px rgba(255,255,255,0.8);
 }
 
 .slide[data-theme="personal"] h2 {
@@ -86,6 +115,7 @@
     font-weight: 600;
     margin-bottom: 1.2rem;
     line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
 }
 
 .slide[data-theme="personal"] h3 {
@@ -93,20 +123,29 @@
     font-size: 1.6rem;
     font-weight: 600;
     margin-bottom: 1rem;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
 }
 
+/* Mejorar contraste del texto normal */
 .slide[data-theme="personal"] p {
     font-size: 1.1rem;
     margin-bottom: 1.2rem;
     color: var(--personal-text);
     line-height: 1.6;
+    /* Fondo sutil para mejor legibilidad */
+    background: rgba(255,255,255,0.7);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
 }
 
-/* Listas con estilo personal */
+/* Listas con mejor contraste */
 .slide[data-theme="personal"] ul {
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
     padding-left: 0;
+    background: rgba(255,255,255,0.8);
+    padding: 1rem;
+    border-radius: 8px;
 }
 
 .slide[data-theme="personal"] li {
@@ -126,14 +165,15 @@
     font-weight: bold;
 }
 
-/* Tablas profesionales */
+/* Tablas con mejor contraste */
 .slide[data-theme="personal"] table {
     width: 100%;
     border-collapse: collapse;
     margin: 1.5rem 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     border-radius: 8px;
     overflow: hidden;
+    background: var(--personal-white);
 }
 
 .slide[data-theme="personal"] th {
@@ -147,13 +187,14 @@
 .slide[data-theme="personal"] td {
     padding: 0.8rem 1rem;
     border-bottom: 1px solid #e2e8f0;
+    background: var(--personal-white);
 }
 
-.slide[data-theme="personal"] tr:nth-child(even) {
+.slide[data-theme="personal"] tr:nth-child(even) td {
     background: var(--personal-light);
 }
 
-/* Énfasis */
+/* Resto de estilos sin cambios... */
 .slide[data-theme="personal"] strong {
     color: var(--personal-primary);
     font-weight: 700;
@@ -164,7 +205,6 @@
     font-style: italic;
 }
 
-/* Código */
 .slide[data-theme="personal"] code {
     background: var(--personal-white);
     color: var(--personal-secondary);
@@ -174,15 +214,14 @@
     border: 1px solid #e2e8f0;
 }
 
-/* Numeración personalizada */
 .slide[data-theme="personal"][data-paginate] .pagination {
     position: absolute;
     bottom: 30px;
     right: 50px;
     font-size: 1rem;
     color: var(--personal-gray);
-    background: var(--personal-white);
+    background: rgba(255,255,255,0.9);
     padding: 0.5rem 1rem;
     border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
