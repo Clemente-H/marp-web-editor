@@ -1,0 +1,188 @@
+/* Template Personal */
+.slide[data-theme="personal"] {
+    --personal-primary: #2563eb; /* Azul profesional */
+    --personal-secondary: #0f172a; /* Azul muy oscuro */
+    --personal-accent: #f59e0b; /* Dorado/amarillo para acentos */
+    --personal-gray: #64748b;
+    --personal-light: #f1f5f9;
+    --personal-white: #ffffff;
+    --personal-text: #1e293b;
+    
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+    background: linear-gradient(135deg, var(--personal-light) 0%, #e2e8f0 100%);
+    color: var(--personal-text);
+    line-height: 1.6;
+    position: relative;
+}
+
+/* SLIDE DE TÍTULO */
+.slide[data-theme="personal"].title-slide {
+    background: linear-gradient(135deg, var(--personal-secondary) 0%, var(--personal-primary) 100%);
+    color: var(--personal-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px;
+}
+
+.slide[data-theme="personal"].title-slide h1 {
+    color: var(--personal-white);
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+}
+
+.slide[data-theme="personal"].title-slide h2 {
+    color: var(--personal-accent);
+    font-size: 2.2rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
+
+.slide[data-theme="personal"].title-slide h3 {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+}
+
+/* SLIDE DE SECCIÓN */
+.slide[data-theme="personal"].section-slide {
+    background: linear-gradient(135deg, var(--personal-accent) 0%, #d97706 100%);
+    color: var(--personal-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.slide[data-theme="personal"].section-slide h1 {
+    font-size: 4rem;
+    color: var(--personal-white);
+    font-weight: 700;
+    margin: 0;
+}
+
+/* SLIDES NORMALES */
+.slide[data-theme="personal"]:not(.title-slide):not(.section-slide) {
+    padding: 70px 80px;
+}
+
+/* Tipografía */
+.slide[data-theme="personal"] h1 {
+    color: var(--personal-primary);
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.slide[data-theme="personal"] h2 {
+    color: var(--personal-secondary);
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    line-height: 1.3;
+}
+
+.slide[data-theme="personal"] h3 {
+    color: var(--personal-primary);
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.slide[data-theme="personal"] p {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    color: var(--personal-text);
+    line-height: 1.6;
+}
+
+/* Listas con estilo personal */
+.slide[data-theme="personal"] ul {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    padding-left: 0;
+}
+
+.slide[data-theme="personal"] li {
+    margin-bottom: 0.8rem;
+    position: relative;
+    padding-left: 2rem;
+    list-style: none;
+    line-height: 1.5;
+}
+
+.slide[data-theme="personal"] ul > li::before {
+    content: "▶";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--personal-accent);
+    font-weight: bold;
+}
+
+/* Tablas profesionales */
+.slide[data-theme="personal"] table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.slide[data-theme="personal"] th {
+    background: var(--personal-primary);
+    color: var(--personal-white);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.slide[data-theme="personal"] td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.slide[data-theme="personal"] tr:nth-child(even) {
+    background: var(--personal-light);
+}
+
+/* Énfasis */
+.slide[data-theme="personal"] strong {
+    color: var(--personal-primary);
+    font-weight: 700;
+}
+
+.slide[data-theme="personal"] em {
+    color: var(--personal-accent);
+    font-style: italic;
+}
+
+/* Código */
+.slide[data-theme="personal"] code {
+    background: var(--personal-white);
+    color: var(--personal-secondary);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-family: 'Fira Code', monospace;
+    border: 1px solid #e2e8f0;
+}
+
+/* Numeración personalizada */
+.slide[data-theme="personal"][data-paginate] .pagination {
+    position: absolute;
+    bottom: 30px;
+    right: 50px;
+    font-size: 1rem;
+    color: var(--personal-gray);
+    background: var(--personal-white);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
