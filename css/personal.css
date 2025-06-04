@@ -1,4 +1,7 @@
-/* Template Personal Mejorado */
+/* Importar fuente Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Template Personal Completo */
 .slide[data-theme="personal"] {
     --personal-primary: #2563eb;
     --personal-secondary: #0f172a; 
@@ -23,7 +26,7 @@
     background-repeat: no-repeat;
 }
 
-/* SLIDE DE TÍTULO - sin cambios */
+/* SLIDE DE TÍTULO */
 .slide[data-theme="personal"].title-slide {
     background: linear-gradient(135deg, var(--personal-secondary) 0%, var(--personal-primary) 100%);
     color: var(--personal-white);
@@ -56,7 +59,7 @@
     margin-bottom: 2rem;
 }
 
-/* SLIDE DE SECCIÓN - sin cambios */
+/* SLIDE DE SECCIÓN */
 .slide[data-theme="personal"].section-slide {
     background: linear-gradient(135deg, var(--personal-accent) 0%, #d97706 100%);
     color: var(--personal-white);
@@ -105,7 +108,6 @@
     font-weight: 700;
     margin-bottom: 1.5rem;
     line-height: 1.2;
-    /* Mejor contraste sobre el background */
     text-shadow: 0 2px 4px rgba(255,255,255,0.8);
 }
 
@@ -132,7 +134,6 @@
     margin-bottom: 1.2rem;
     color: var(--personal-text);
     line-height: 1.6;
-    /* Fondo sutil para mejor legibilidad */
     background: rgba(255,255,255,0.7);
     padding: 0.3rem 0.6rem;
     border-radius: 4px;
@@ -142,9 +143,8 @@
 .slide[data-theme="personal"] ul {
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
-    padding-left: 0;
-    background: rgba(255,255,255,0.8);
     padding: 1rem;
+    background: rgba(255,255,255,0.8);
     border-radius: 8px;
 }
 
@@ -194,7 +194,7 @@
     background: var(--personal-light);
 }
 
-/* Resto de estilos sin cambios... */
+/* Énfasis */
 .slide[data-theme="personal"] strong {
     color: var(--personal-primary);
     font-weight: 700;
@@ -205,6 +205,7 @@
     font-style: italic;
 }
 
+/* Código */
 .slide[data-theme="personal"] code {
     background: var(--personal-white);
     color: var(--personal-secondary);
@@ -214,6 +215,7 @@
     border: 1px solid #e2e8f0;
 }
 
+/* Numeración */
 .slide[data-theme="personal"][data-paginate] .pagination {
     position: absolute;
     bottom: 30px;
@@ -224,4 +226,42 @@
     padding: 0.5rem 1rem;
     border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* FULLSCREEN SUPPORT PARA TEMA PERSONAL */
+#fullscreen-slide[data-theme="personal"] {
+    background-image: 
+        linear-gradient(135deg, rgba(241,245,249,0.95) 0%, rgba(226,232,240,0.95) 100%),
+        url('https://drive.google.com/uc?export=view&id=1ZMKiqVBJfp45k-I1XfTct6pfg9EX-IF5');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#fullscreen-slide[data-theme="personal"] h1 {
+    color: var(--personal-primary);
+    text-shadow: 0 2px 4px rgba(255,255,255,0.8);
+}
+
+#fullscreen-slide[data-theme="personal"] h2 {
+    color: var(--personal-secondary);
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+}
+
+#fullscreen-slide[data-theme="personal"] table {
+    background: var(--personal-white);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+#fullscreen-slide[data-theme="personal"] th {
+    background: var(--personal-primary);
+    color: var(--personal-white);
+}
+
+#fullscreen-slide[data-theme="personal"] td {
+    background: var(--personal-white);
+}
+
+#fullscreen-slide[data-theme="personal"] tr:nth-child(even) td {
+    background: var(--personal-light);
 }

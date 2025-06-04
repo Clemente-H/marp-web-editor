@@ -398,3 +398,58 @@
         font-size: 3.5rem;
     }
 }
+
+/* Fullscreen support para tema CENIA */
+#fullscreen-slide[data-theme="cenia"] {
+    background: var(--cenia-light-bg);
+    background-image: url('../assets/backgrounds/cenia-pattern.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#fullscreen-slide[data-theme="cenia"].title-slide {
+    background: linear-gradient(135deg, var(--cenia-secondary) 0%, var(--cenia-dark-blue) 100%);
+    background-image: 
+        linear-gradient(135deg, rgba(0,32,96,0.85) 0%, rgba(10,14,80,0.85) 100%),
+        url('../assets/backgrounds/cenia-title.png');
+    background-size: cover;
+    background-position: center;
+}
+
+#fullscreen-slide[data-theme="cenia"].section-slide {
+    background: linear-gradient(135deg, var(--cenia-primary) 0%, var(--cenia-medium-pink) 100%);
+    background-image: 
+        linear-gradient(135deg, rgba(231,40,135,0.85) 0%, rgba(235,119,177,0.85) 100%),
+        url('../assets/backgrounds/cenia-section.png');
+    background-size: cover;
+    background-position: center;
+}
+
+#fullscreen-slide[data-theme="cenia"] h1 {
+    color: var(--cenia-primary);
+    font-size: 3.2rem;
+    font-weight: 600;
+}
+
+#fullscreen-slide[data-theme="cenia"] h2 {
+    color: var(--cenia-secondary);
+    font-size: 2.4rem;
+    font-weight: 600;
+}
+
+#fullscreen-slide[data-theme="cenia"] table {
+    background: var(--cenia-white);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#fullscreen-slide[data-theme="cenia"] th {
+    background: var(--cenia-primary);
+    color: var(--cenia-white);
+}
+
+#fullscreen-slide[data-theme="cenia"] tr:nth-child(even) {
+    background: rgba(247,247,247,0.8);
+}
